@@ -1,4 +1,5 @@
-package com.mobdeve.ss1.milan.john.moc2;
+package com.example.plately;
+
 //change package name
 import android.os.Bundle;
 import android.widget.ImageButton;
@@ -46,4 +47,5 @@ public class ProfileActivity extends AppCompatActivity {
             });
         }
     }
+
 }
