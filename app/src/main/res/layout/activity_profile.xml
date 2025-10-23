@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android:com/tools"
+    android:id="@+id/layoutMainProfile" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@android:color/white"
+    tools:context=".ProfileActivity">
+
+    <LinearLayout
+        android:id="@+id/headerToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="#D32F2F"  android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:paddingStart="16dp"
+            android:textSize="20sp"
+            android:textColor="#FFFFFF"
+            android:text="My Profile" />
+
+        <ImageButton
+            android:id="@+id/buttonSettings" android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:background="@android:color/transparent"
+            android:src="@android:drawable/ic_menu_manage"
+            android:contentDescription="Settings"
+            android:tint="#FFFFFF" />
+
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:paddingBottom="24dp">
+
+                <ImageView
+                    android:id="@+id/imageViewProfilePicture"
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    android:scaleType="centerCrop"
+                    android:layout_marginBottom="8dp"
+                    android:background="@android:color/darker_gray"
+                    android:src="@drawable/profile_photo"
+
+                    android:contentDescription="Profile Picture" />
+
+                <TextView
+                    android:id="@+id/textViewUserName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/black"
+                    android:text="Naruto Uzumaki" />
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="My Recipes"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#D32F2F"
+                android:layout_marginBottom="8dp" />
+
+            <LinearLayout
+                android:id="@+id/layoutMyRecipesContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingBottom="16dp"
+                android:background="#FAFAFA">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="8dp"
+                    android:textSize="16sp"
+                    android:text="Spicy Ramen Bowl"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:textColor="@android:color/black"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="8dp"
+                    android:textSize="16sp"
+                    android:text="Quick Chocolate Chip Cookies"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:textColor="@android:color/black"/>
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Saved Recipes"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#D32F2F"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp" />
+
+            <LinearLayout
+                android:id="@+id/layoutSavedRecipesContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingBottom="16dp"
+                android:background="#FAFAFA">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="8dp"
+                    android:textSize="16sp"
+                    android:text="Best Tacos Al Pastor"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:textColor="@android:color/black"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="8dp"
+                    android:textSize="16sp"
+                    android:text="Healthy Smoothie Guide"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:textColor="@android:color/black"/>
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="My Reviews"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#D32F2F"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp" />
+
+            <LinearLayout
+                android:id="@+id/layoutMyReviewsContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingBottom="16dp"
+                android:background="#FAFAFA">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="8dp"
+                    android:textSize="16sp"
+                    android:text="Review on Pasta Carbonara: 'Too creamy'"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:textColor="@android:color/black"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="8dp"
+                    android:textSize="16sp"
+                    android:text="Review on Pancakes: 'Perfect!'"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:textColor="@android:color/black"/>
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="32dp" />
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

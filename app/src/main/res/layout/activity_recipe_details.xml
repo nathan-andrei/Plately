@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layoutMainRecipeDetails" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".RecipeDetailsActivity">
+
+    <LinearLayout
+        android:id="@+id/headerToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="#D32F2F" android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:paddingStart="16dp"
+            android:textSize="20sp"
+            android:textColor="#FFFFFF"
+            android:text="Recipe Details" />
+
+        <ImageButton
+            android:id="@+id/imageViewSaveRecipe"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:background="@android:color/transparent"
+            android:src="@android:drawable/btn_star_big_off"
+            android:contentDescription="Save recipe"
+            android:tint="#FFFFFF" />
+
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <ImageView
+                android:id="@+id/imageViewRecipePhoto"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:scaleType="centerCrop"
+                android:layout_marginBottom="16dp"
+                android:background="@android:color/darker_gray"
+                android:contentDescription="Recipe main photo"
+                android:src="@drawable/ramen_photo"  tools:src="@drawable/ramen_photo"  />
+
+            <TextView
+                android:id="@+id/textViewRecipeName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"
+                android:text="Ichiraku Ramen Bowl" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="8dp"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/textViewAuthor"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:text="By: Naruto Uzumaki" />
+
+                <RatingBar
+                    android:id="@+id/ratingBarOverall"
+                    style="?android:attr/ratingBarStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:numStars="5"
+                    android:stepSize="0.5"
+                    android:isIndicator="true"
+                    android:layout_marginStart="16dp"
+                    android:rating="4.5" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="16dp">
+
+                <TextView
+                    android:id="@+id/textViewServings"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawablePadding="4dp"
+                    android:textSize="16sp"
+                    android:drawableStart="@android:drawable/ic_menu_myplaces"
+                    android:drawableTint="@android:color/black"
+                    android:text="Servings: 4" />
+
+                <TextView
+                    android:id="@+id/textViewCookingTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:drawablePadding="4dp"
+                    android:textSize="16sp"
+                    android:drawableStart="@android:drawable/ic_menu_recent_history"
+                    android:drawableTint="@android:color/black"
+                    android:text="Time: 45 min" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Tags"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/textViewTagsList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textSize="16sp"
+                android:text="Comfort Food, Dinner, Spicy, Hidden Leaf Special" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Description"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/textViewFullDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textSize="16sp"
+                android:text="A flavorful and heartwarming ramen inspired by Naruto’s favorite bowl from Ichiraku Ramen. The broth bursts with rich umami flavor and a hint of spice—perfect fuel for any aspiring ninja after a long day of training. Add extra chili oil for a fiery kick worthy of the Hokage himself!" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Steps"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:id="@+id/stepsContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="8dp">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:text="1. Boil water and cook noodles according to package."
+                    android:paddingBottom="8dp"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:text="2. Mix broth ingredients in a separate pot and simmer."
+                    android:paddingBottom="8dp"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:text="3. Combine noodles and broth, garnish with desired toppings."/>
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Write Your Own Review"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <RatingBar
+                android:id="@+id/ratingBarUser"
+                style="?android:attr/ratingBarStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:numStars="5"
+                android:stepSize="1"
+                android:layout_marginTop="8dp"
+                />
+
+            <EditText
+                android:id="@+id/editTextReview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:hint="Share your thoughts on this recipe..."
+                android:inputType="textMultiLine"
+                android:minLines="3"
+                android:textSize="16sp"
+                android:gravity="top|start"
+                android:background="@android:drawable/editbox_background"/>
+
+            <Button
+                android:id="@+id/buttonSubmitReview" android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Submit Review"
+                android:layout_gravity="end"
+                android:layout_marginTop="8dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Others' Ratings"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:id="@+id/reviewsContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="8dp">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:text="User A (5 stars): Absolutely loved it! The spice was perfect."
+                    android:paddingBottom="8dp"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:text="User B (4 stars): Great recipe, but I cut the cooking time."
+                    android:paddingBottom="8dp"/>
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>
