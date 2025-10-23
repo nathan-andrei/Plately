@@ -1,4 +1,5 @@
-package com.mobdeve.ss1.milan.john.moc2;
+package com.example.plately;
+
 
 //change package name
 import android.os.Bundle;
@@ -47,4 +48,5 @@ public class RecipeDetailsActivity extends AppCompatActivity {
             });
         }
     }
+
 }
