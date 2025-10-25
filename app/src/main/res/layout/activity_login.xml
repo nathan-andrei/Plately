@@ -17,137 +17,96 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/welcome_cl"
+            android:id="@+id/register_cl"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             tools:visibility="gone">
 
-            <ImageView
-                android:id="@+id/Logo_iv"
-                android:layout_width="221dp"
-                android:layout_height="133dp"
-                android:layout_marginStart="32dp"
-                android:layout_marginTop="68dp"
-                android:layout_marginEnd="32dp"
-                android:adjustViewBounds="true"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@color/design_default_color_error"
-                tools:srcCompat="@tools:sample/backgrounds/scenic" />
-
             <TextView
-                android:id="@+id/Welcome_tv"
+                android:id="@+id/RegisterHeader_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="Welcome to Plately!"
-                android:textAlignment="center"
-                android:textSize="32sp"
+                android:layout_marginTop="160dp"
+                android:text="Register"
+                android:textSize="34sp"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/Logo_iv" />
+                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
-                android:id="@+id/Caption_tv"
-                android:layout_width="0dp"
+                android:id="@+id/Register_Email_tv"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="32dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="32dp"
-                android:text="An app for cookers, by cookers. Lorem Ipsum dolor et latinus Ich forgotus da restus"
-                android:textAlignment="center"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/Welcome_tv" />
+                android:layout_marginStart="8dp"
+                android:layout_marginBottom="4dp"
+                android:text="Email"
+                app:layout_constraintBottom_toTopOf="@+id/Register_Email_etv"
+                app:layout_constraintStart_toStartOf="@+id/Register_Email_etv" />
+
+            <TextView
+                android:id="@+id/Register_Pasword_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginBottom="4dp"
+                android:text="Password"
+                app:layout_constraintBottom_toTopOf="@+id/Register_Password_etv"
+                app:layout_constraintStart_toStartOf="@+id/Register_Password_etv" />
 
             <Button
-                android:id="@+id/ToLogin_btn"
+                android:id="@+id/Register_btn"
                 android:layout_width="200dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="32dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="32dp"
-                android:text="Login using Email"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/Caption_tv" />
-
-            <Button
-                android:id="@+id/ToRegister_btn"
-                android:layout_width="200dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="161dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="157dp"
+                android:layout_marginTop="24dp"
+                android:backgroundTint="#D32F2F"
                 android:text="Register"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/ToLogin_btn" />
+                app:layout_constraintTop_toBottomOf="@+id/Register_Password_etv" />
 
             <Button
-                android:id="@+id/Guest_btn"
-                android:layout_width="wrap_content"
+                android:id="@+id/Register_back_btn"
+                android:layout_width="200dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="161dp"
-                android:layout_marginEnd="157dp"
-                android:layout_marginBottom="32dp"
-                android:text="Continue as guest"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
-
-            <LinearLayout
-                android:id="@+id/SSO_hll"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:gravity="center"
-                android:orientation="horizontal"
-                android:paddingStart="8dp"
-                android:paddingEnd="8dp"
+                android:layout_marginTop="16dp"
+                android:backgroundTint="#F8F6F6"
+                android:foregroundTint="#3E1E1E"
+                android:outlineProvider="bounds"
+                android:text="Back"
+                android:textColor="#545454"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/SSO_tv">
+                app:layout_constraintTop_toBottomOf="@+id/Register_btn" />
 
-                <ImageButton
-                    android:id="@+id/SSO_FB_btn"
-                    android:layout_width="60dp"
-                    android:layout_height="60dp"
-                    android:layout_weight="1"
-                    android:adjustViewBounds="true"
-                    app:srcCompat="@drawable/ic_launcher_background" />
-
-                <ImageButton
-                    android:id="@+id/SSO_Google_btn"
-                    android:layout_width="60dp"
-                    android:layout_height="60dp"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="16dp"
-                    android:layout_weight="1"
-                    android:adjustViewBounds="true"
-                    android:scaleType="centerInside"
-                    app:srcCompat="@drawable/ic_launcher_background" />
-
-                <ImageButton
-                    android:id="@+id/SSO_Twitter_btn"
-                    android:layout_width="60dp"
-                    android:layout_height="60dp"
-                    android:layout_weight="1"
-                    android:adjustViewBounds="true"
-                    app:srcCompat="@drawable/ic_launcher_background" />
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/SSO_tv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="or login using"
+            <EditText
+                android:id="@+id/Register_Email_etv"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="32dp"
+                android:layout_marginTop="48dp"
+                android:layout_marginEnd="32dp"
+                android:ems="10"
+                android:hint="Enter your email"
+                android:inputType="textEmailAddress"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/ToRegister_btn" />
+                app:layout_constraintTop_toBottomOf="@+id/RegisterHeader_tv" />
+
+            <EditText
+                android:id="@+id/Register_Password_etv"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="32dp"
+                android:layout_marginTop="32dp"
+                android:layout_marginEnd="32dp"
+                android:ems="10"
+                android:hint="Enter your password"
+                android:inputType="textPassword"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/Register_Email_etv" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -193,10 +152,11 @@
                 app:layout_constraintStart_toStartOf="@+id/Login_Password_etv" />
 
             <Button
-                android:id="@+id/Logint_btn"
+                android:id="@+id/Login_btn"
                 android:layout_width="200dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
+                android:backgroundTint="#D32F2F"
                 android:text="Login"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -214,7 +174,7 @@
                 android:textColor="#545454"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/Logint_btn" />
+                app:layout_constraintTop_toBottomOf="@+id/Login_btn" />
 
             <EditText
                 android:id="@+id/Login_Email_etv"
@@ -246,11 +206,149 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/register_cl"
+            android:id="@+id/welcome_cl"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             tools:visibility="gone">
 
+            <ImageView
+                android:id="@+id/Logo_iv"
+                android:layout_width="221dp"
+                android:layout_height="133dp"
+                android:layout_marginStart="32dp"
+                android:layout_marginTop="68dp"
+                android:layout_marginEnd="32dp"
+                android:adjustViewBounds="true"
+                android:paddingTop="32dp"
+                android:paddingEnd="16dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/plately_logo" />
+
+            <TextView
+                android:id="@+id/Welcome_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Welcome to Plately!"
+                android:textAlignment="center"
+                android:textSize="32sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/Logo_iv" />
+
+            <TextView
+                android:id="@+id/Caption_tv"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="32dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="32dp"
+                android:text="An app for cookers, by cookers. Lorem Ipsum dolor et latinus Ich forgotus da restus"
+                android:textAlignment="center"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/Welcome_tv" />
+
+            <Button
+                android:id="@+id/ToLogin_btn"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="32dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="32dp"
+                android:backgroundTint="#D32F2F"
+                android:text="Login using Email"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/Caption_tv" />
+
+            <Button
+                android:id="@+id/ToRegister_btn"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="161dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="157dp"
+                android:backgroundTint="#D32F2F"
+                android:text="Register"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/ToLogin_btn" />
+
+            <Button
+                android:id="@+id/Guest_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="161dp"
+                android:layout_marginEnd="157dp"
+                android:layout_marginBottom="32dp"
+                android:backgroundTint="#D32F2F"
+                android:text="Continue as guest"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <LinearLayout
+                android:id="@+id/SSO_hll"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/SSO_tv">
+
+                <ImageButton
+                    android:id="@+id/SSO_FB_btn"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:layout_weight="1"
+                    android:adjustViewBounds="true"
+                    android:background="#FAFFFFFF"
+                    android:padding="8dp"
+                    android:scaleType="fitCenter"
+                    app:srcCompat="@drawable/fb_logo" />
+
+                <ImageButton
+                    android:id="@+id/SSO_Google_btn"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_weight="1"
+                    android:adjustViewBounds="true"
+                    android:background="#00FFFFFF"
+                    android:padding="8dp"
+                    android:scaleType="centerInside"
+                    app:srcCompat="@drawable/google_logo" />
+
+                <ImageButton
+                    android:id="@+id/SSO_Twitter_btn"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:layout_weight="1"
+                    android:adjustViewBounds="true"
+                    android:background="#00FFFFFF"
+                    android:padding="8dp"
+                    android:scaleType="fitCenter"
+                    app:srcCompat="@drawable/x_logo" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/SSO_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="or login using"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/ToRegister_btn" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </ViewAnimator>

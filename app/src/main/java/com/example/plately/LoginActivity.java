@@ -1,12 +1,11 @@
 package com.example.plately;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ViewAnimator;
-import android.widget.ViewSwitcher;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -51,9 +50,23 @@ public class LoginActivity extends AppCompatActivity {
             //setUpRegister();
             viewAnimator.setDisplayedChild(2);
         });
+        
+        //Initialize the listener for going straight to Main
+        findViewById(R.id.Guest_btn).setOnClickListener(v -> {
+            Intent i = new Intent(this, MainActivity.class);
+            //Throw session data here
+            startActivity(i);
+            finish();
+        });
     }
 
     private void setUpLogin(){
+        findViewById(R.id.Login_btn).setOnClickListener(v -> {
+            Intent i = new Intent(this, MainActivity.class);
+            //Throw session data here
+            startActivity(i);
+            finish();
+        });
         findViewById(R.id.Login_Back_btn).setOnClickListener(v -> {
             viewAnimator.setDisplayedChild(0);
         });

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -39,5 +40,17 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
             startActivity(intent);
         });
+        
+        getOnBackPressedDispatcher().addCallback(this, callback);
     }
+    
+    //function to override back button and make it close the app instead of potentially going to LoginActivity
+    OnBackPressedCallback callback = new OnBackPressedCallback(true){
+        @Override
+        public void handleOnBackPressed(){
+            finishAffinity();
+            finish();
+            setEnabled(false);
+        }
+    };
 }

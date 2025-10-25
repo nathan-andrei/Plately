@@ -45,40 +45,52 @@
     <LinearLayout
         android:id="@+id/bottomNavBar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center"
+        android:layout_height="80dp"
+        android:layout_gravity="top"
         android:background="#D32F2F"
-        android:paddingVertical="8dp">
+        android:gravity="top"
+        android:orientation="horizontal"
+        android:paddingVertical="8dp"
+        android:paddingTop="16dp">
 
         <ImageButton
             android:id="@+id/buttonHome"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_gravity="top"
             android:layout_weight="1"
+            android:adjustViewBounds="true"
             android:background="@android:color/transparent"
-            app:srcCompat="@drawable/baseline_home_24"
+            android:contentDescription="Home"
+            android:paddingBottom="16dp"
+            android:scaleType="fitCenter"
             android:tint="#FFFFFF"
-            android:contentDescription="Home" />
+            app:srcCompat="@drawable/baseline_home_24" />
 
         <ImageButton
             android:id="@+id/buttonAddRecipe"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:adjustViewBounds="true"
             android:background="@android:color/transparent"
-            app:srcCompat="@drawable/baseline_add_circle_24"
+            android:contentDescription="Add"
+            android:paddingBottom="16dp"
+            android:scaleType="fitCenter"
             android:tint="#FFFFFF"
-            android:contentDescription="Add" />
+            app:srcCompat="@drawable/baseline_add_circle_24" />
 
         <ImageButton
             android:id="@+id/buttonProfile"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:adjustViewBounds="true"
             android:background="@android:color/transparent"
-            app:srcCompat="@drawable/baseline_person_24"
+            android:contentDescription="Profile"
+            android:paddingBottom="16dp"
+            android:scaleType="fitCenter"
             android:tint="#FFFFFF"
-            android:contentDescription="Profile" />
+            app:srcCompat="@drawable/baseline_person_24" />
     </LinearLayout>
 </LinearLayout>
