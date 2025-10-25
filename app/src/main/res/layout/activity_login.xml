@@ -17,195 +17,6 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/register_cl"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            tools:visibility="gone">
-
-            <TextView
-                android:id="@+id/RegisterHeader_tv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="160dp"
-                android:text="Register"
-                android:textSize="34sp"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/Register_Email_tv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginBottom="4dp"
-                android:text="Email"
-                app:layout_constraintBottom_toTopOf="@+id/Register_Email_etv"
-                app:layout_constraintStart_toStartOf="@+id/Register_Email_etv" />
-
-            <TextView
-                android:id="@+id/Register_Pasword_tv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginBottom="4dp"
-                android:text="Password"
-                app:layout_constraintBottom_toTopOf="@+id/Register_Password_etv"
-                app:layout_constraintStart_toStartOf="@+id/Register_Password_etv" />
-
-            <Button
-                android:id="@+id/Register_btn"
-                android:layout_width="200dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:backgroundTint="#D32F2F"
-                android:text="Register"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/Register_Password_etv" />
-
-            <Button
-                android:id="@+id/Register_back_btn"
-                android:layout_width="200dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:backgroundTint="#F8F6F6"
-                android:foregroundTint="#3E1E1E"
-                android:outlineProvider="bounds"
-                android:text="Back"
-                android:textColor="#545454"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/Register_btn" />
-
-            <EditText
-                android:id="@+id/Register_Email_etv"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_marginStart="32dp"
-                android:layout_marginTop="48dp"
-                android:layout_marginEnd="32dp"
-                android:ems="10"
-                android:hint="Enter your email"
-                android:inputType="textEmailAddress"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/RegisterHeader_tv" />
-
-            <EditText
-                android:id="@+id/Register_Password_etv"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_marginStart="32dp"
-                android:layout_marginTop="32dp"
-                android:layout_marginEnd="32dp"
-                android:ems="10"
-                android:hint="Enter your password"
-                android:inputType="textPassword"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/Register_Email_etv" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/login_cl"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:visibility="gone">
-
-            <TextView
-                android:id="@+id/LoginHeader_tv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="210dp"
-                android:text="Login"
-                android:textSize="34sp"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/Login_Email_tv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginBottom="4dp"
-                android:text="Email"
-                app:layout_constraintBottom_toTopOf="@+id/Login_Email_etv"
-                app:layout_constraintStart_toStartOf="@+id/Login_Email_etv" />
-
-            <TextView
-                android:id="@+id/Login_Pasword_tv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginBottom="4dp"
-                android:text="Password"
-                app:layout_constraintBottom_toTopOf="@+id/Login_Password_etv"
-                app:layout_constraintStart_toStartOf="@+id/Login_Password_etv" />
-
-            <Button
-                android:id="@+id/Login_btn"
-                android:layout_width="200dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:backgroundTint="#D32F2F"
-                android:text="Login"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/Login_Password_etv" />
-
-            <Button
-                android:id="@+id/Login_Back_btn"
-                android:layout_width="200dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:backgroundTint="#F8F6F6"
-                android:foregroundTint="#3E1E1E"
-                android:outlineProvider="bounds"
-                android:text="Back"
-                android:textColor="#545454"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/Login_btn" />
-
-            <EditText
-                android:id="@+id/Login_Email_etv"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_marginStart="32dp"
-                android:layout_marginTop="48dp"
-                android:layout_marginEnd="32dp"
-                android:ems="10"
-                android:hint="Enter your email"
-                android:inputType="textEmailAddress"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/LoginHeader_tv" />
-
-            <EditText
-                android:id="@+id/Login_Password_etv"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_marginStart="32dp"
-                android:layout_marginTop="32dp"
-                android:layout_marginEnd="32dp"
-                android:ems="10"
-                android:hint="Enter your password"
-                android:inputType="textPassword"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/Login_Email_etv" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/welcome_cl"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -349,6 +160,301 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/ToRegister_btn" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/login_cl"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:visibility="gone">
+
+            <TextView
+                android:id="@+id/LoginHeader_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="210dp"
+                android:text="Login"
+                android:textSize="34sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/Login_Email_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginBottom="4dp"
+                android:text="Email"
+                app:layout_constraintBottom_toTopOf="@+id/Login_Email_etv"
+                app:layout_constraintStart_toStartOf="@+id/Login_Email_etv" />
+
+            <TextView
+                android:id="@+id/Login_Pasword_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginBottom="4dp"
+                android:text="Password"
+                app:layout_constraintBottom_toTopOf="@+id/Login_Password_etv"
+                app:layout_constraintStart_toStartOf="@+id/Login_Password_etv" />
+
+            <Button
+                android:id="@+id/Login_btn"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:backgroundTint="#D32F2F"
+                android:text="Login"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/Login_Password_etv" />
+
+            <Button
+                android:id="@+id/Login_Back_btn"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:backgroundTint="#F8F6F6"
+                android:foregroundTint="#3E1E1E"
+                android:outlineProvider="bounds"
+                android:text="Back"
+                android:textColor="#545454"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/Login_btn" />
+
+            <EditText
+                android:id="@+id/Login_Email_etv"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="32dp"
+                android:layout_marginTop="48dp"
+                android:layout_marginEnd="32dp"
+                android:ems="10"
+                android:hint="Enter your email"
+                android:inputType="textEmailAddress"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/LoginHeader_tv" />
+
+            <EditText
+                android:id="@+id/Login_Password_etv"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="32dp"
+                android:layout_marginTop="32dp"
+                android:layout_marginEnd="32dp"
+                android:ems="10"
+                android:hint="Enter your password"
+                android:inputType="textPassword"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/Login_Email_etv" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/register_cl"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:visibility="gone">
+
+            <TextView
+                android:id="@+id/RegisterHeader_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="160dp"
+                android:text="Register"
+                android:textSize="34sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginBottom="4dp"
+                android:text="Display Name"
+                app:layout_constraintBottom_toTopOf="@+id/Display_Name_etv"
+                app:layout_constraintStart_toStartOf="@+id/Display_Name_etv" />
+
+            <EditText
+                android:id="@+id/Display_Name_etv"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="32dp"
+                android:layout_marginTop="48dp"
+                android:layout_marginEnd="32dp"
+                android:ems="10"
+                android:hint="Enter your name"
+                android:inputType="text"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/RegisterHeader_tv" />
+
+            <TextView
+                android:id="@+id/Register_Email_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginBottom="4dp"
+                android:text="Email"
+                app:layout_constraintBottom_toTopOf="@+id/Register_Email_etv"
+                app:layout_constraintStart_toStartOf="@+id/Register_Email_etv" />
+
+            <TextView
+                android:id="@+id/Register_Pasword_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginBottom="4dp"
+                android:text="Password"
+                app:layout_constraintBottom_toTopOf="@+id/Register_Password_etv"
+                app:layout_constraintStart_toStartOf="@+id/Register_Password_etv" />
+
+            <Button
+                android:id="@+id/Register_btn"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:backgroundTint="#D32F2F"
+                android:text="Register"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/Register_Password_etv" />
+
+            <Button
+                android:id="@+id/Register_back_btn"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:backgroundTint="#F8F6F6"
+                android:foregroundTint="#3E1E1E"
+                android:outlineProvider="bounds"
+                android:text="Back"
+                android:textColor="#545454"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/Register_btn" />
+
+            <EditText
+                android:id="@+id/Register_Email_etv"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="32dp"
+                android:layout_marginTop="32dp"
+                android:layout_marginEnd="32dp"
+                android:ems="10"
+                android:hint="Enter your email"
+                android:inputType="textEmailAddress"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/Display_Name_etv" />
+
+            <EditText
+                android:id="@+id/Register_Password_etv"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="32dp"
+                android:layout_marginTop="32dp"
+                android:layout_marginEnd="32dp"
+                android:ems="10"
+                android:hint="Enter your password"
+                android:inputType="textPassword"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/Register_Email_etv" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/otp_cl"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="60dp"
+                android:text="Verify using OTP"
+                android:textSize="34sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/textView3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="32dp"
+                android:layout_marginTop="33dp"
+                android:layout_marginEnd="32dp"
+                android:text="We've sent an OTP to your email. Please check your email."
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView2" />
+
+            <EditText
+                android:id="@+id/OTP_etv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="80dp"
+                android:layout_marginTop="48dp"
+                android:layout_marginEnd="80dp"
+                android:ems="10"
+                android:inputType="number"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView3" />
+
+            <Button
+                android:id="@+id/OTP_Register_btn"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="32dp"
+                android:layout_marginTop="38dp"
+                android:layout_marginEnd="32dp"
+                android:backgroundTint="#D32F2F"
+                android:text="Register"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/OTP_etv" />
+
+            <Button
+                android:id="@+id/OTP_Resend_btn"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="32dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="32dp"
+                android:backgroundTint="#D32F2F"
+                android:text="Resend OTP"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/OTP_Register_btn" />
+
+            <Button
+                android:id="@+id/OTP_back_btn"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:backgroundTint="#F8F6F6"
+                android:outlineProvider="bounds"
+                android:text="Back"
+                android:textColor="#545454"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/OTP_Resend_btn" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </ViewAnimator>

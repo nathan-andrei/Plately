@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 import android.widget.ViewAnimator;
 
 import androidx.activity.EdgeToEdge;
@@ -31,6 +32,7 @@ public class LoginActivity extends AppCompatActivity {
             0   -   Welcome Screen
             1   -   Login Screen
             2   -   Register Screen
+            3   -   OTP authentication
      */
     private void setUpViewAnimator(){
         viewAnimator = findViewById(R.id.welcome_switcher_va);
@@ -47,7 +49,7 @@ public class LoginActivity extends AppCompatActivity {
 
         //Initialize the listener for going to registration
         findViewById(R.id.ToRegister_btn).setOnClickListener(v -> {
-            //setUpRegister();
+            setUpRegister();
             viewAnimator.setDisplayedChild(2);
         });
         
@@ -69,6 +71,33 @@ public class LoginActivity extends AppCompatActivity {
         });
         findViewById(R.id.Login_Back_btn).setOnClickListener(v -> {
             viewAnimator.setDisplayedChild(0);
+        });
+    }
+    
+    private void setUpRegister(){
+        findViewById(R.id.Register_btn).setOnClickListener(v -> {
+            setUpOTP();
+            viewAnimator.setDisplayedChild(3);
+        });
+        
+        findViewById(R.id.Register_back_btn).setOnClickListener(v ->{
+            viewAnimator.setDisplayedChild(0);
+        });
+    }
+    
+    private void setUpOTP(){
+        findViewById(R.id.OTP_Register_btn).setOnClickListener(v -> {
+            setUpLogin();
+            viewAnimator.setDisplayedChild(1);
+            Toast.makeText(LoginActivity.this, "Registered Successfully!.", Toast.LENGTH_SHORT).show();
+        });
+        
+        findViewById(R.id.OTP_Resend_btn).setOnClickListener(v ->{
+            Toast.makeText(LoginActivity.this, "Resent OTP!", Toast.LENGTH_SHORT).show();
+        });
+        
+        findViewById(R.id.OTP_back_btn).setOnClickListener(v ->{
+            viewAnimator.setDisplayedChild(2);
         });
     }
 
