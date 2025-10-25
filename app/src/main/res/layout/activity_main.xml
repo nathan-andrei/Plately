@@ -11,7 +11,8 @@
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:layout_margin="16dp"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:paddingTop="8dp">
 
         <EditText
             android:id="@+id/editTextSearchBar"
@@ -26,12 +27,12 @@
             android:textSize="14sp" />
 
         <ImageButton
-            android:id="@+id/imageViewFilter"
+            android:id="@+id/buttonFilter"
             android:layout_width="40dp"
             android:layout_height="match_parent"
             android:background="@android:color/transparent"
-            app:srcCompat="@drawable/baseline_tune_24"
-            android:tint="#000000" />
+            android:tint="#000000"
+            app:srcCompat="@drawable/baseline_tune_24" />
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView

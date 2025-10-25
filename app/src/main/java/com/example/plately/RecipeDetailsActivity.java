@@ -1,9 +1,6 @@
 package com.example.plately;
 
-
-//change package name
 import android.os.Bundle;
-import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -12,41 +9,33 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.plately.databinding.ActivityRecipeDetailsBinding;
+
 public class RecipeDetailsActivity extends AppCompatActivity {
 
-    // Widgets for Recipe Details Activity
-    private Button buttonSubmitReview;
+    private ActivityRecipeDetailsBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_recipe_details);
 
-        // --- Setup Methods ---
-        setUpWidgets();
-        setUpListeners();
+        binding = ActivityRecipeDetailsBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
-        // Apply Window Insets
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.layoutMainRecipeDetails), (v, insets) -> {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.layoutMainRecipeDetails, (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-    }
 
-    private void setUpWidgets() {
-        // Find the Submit Review button
-        buttonSubmitReview = findViewById(R.id.buttonSubmitReview);
-    }
-
-    private void setUpListeners() {
-        // Placeholder listener for the Submit Review button
-        if (buttonSubmitReview != null) {
-            buttonSubmitReview.setOnClickListener(v -> {
-                Toast.makeText(RecipeDetailsActivity.this, "Review submitted!", Toast.LENGTH_SHORT).show();
-            });
+        String title = getIntent().getStringExtra("title");
+        if (title != null) {
+            binding.textViewRecipeName.setText(title);
         }
-    }
 
+        binding.buttonSubmitReview.setOnClickListener(v ->
+                Toast.makeText(this, "Review submitted!", Toast.LENGTH_SHORT).show()
+        );
+    }
 }

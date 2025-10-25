@@ -28,6 +28,9 @@
 
         <activity android:name=".ProfileActivity" />
 
+        <activity android:name=".RecipeDetailsActivity" />
+
+
     </application>
 
 </manifest>

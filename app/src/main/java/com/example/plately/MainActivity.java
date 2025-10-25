@@ -2,6 +2,7 @@ package com.example.plately;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
@@ -40,7 +41,10 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
             startActivity(intent);
         });
-        
+
+        binding.buttonFilter.setOnClickListener(v ->
+                Toast.makeText(MainActivity.this, "Filter button clicked (Not yet implemented)", Toast.LENGTH_SHORT).show()
+        );
         getOnBackPressedDispatcher().addCallback(this, callback);
     }
     

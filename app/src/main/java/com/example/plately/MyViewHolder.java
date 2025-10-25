@@ -1,5 +1,7 @@
 package com.example.plately;
 
+import android.content.Intent;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -15,5 +17,11 @@ public class MyViewHolder extends RecyclerView.ViewHolder {
 
     public void bindData(RecipeModel recipe) {
         binding.textViewRecipeNamePrev.setText(recipe.getTitle());
+
+        binding.getRoot().setOnClickListener(v -> {
+            Intent intent = new Intent(v.getContext(), RecipeDetailsActivity.class);
+            intent.putExtra("title", recipe.getTitle()); // pass the title
+            v.getContext().startActivity(intent);
+        });
     }
 }

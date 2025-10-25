@@ -41,6 +41,16 @@
             android:textColor="@android:color/white" />
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/textViewAddRecipeTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:text="Add a Recipe"
+        android:textColor="#D32F2F"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"

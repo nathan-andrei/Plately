@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="8dp"
+    android:layout_marginBottom="16dp"
     android:background="@drawable/custom_border"
     android:paddingStart="12dp"
     android:paddingTop="12dp"
@@ -35,6 +35,7 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:background="@android:color/transparent"
+            android:tint="#FFFFFF"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@id/imageViewFood"
             app:srcCompat="@drawable/baseline_star_24" />
@@ -72,14 +73,14 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="horizontal">
 
             <ImageView
                 android:id="@+id/imageViewRating"
                 android:layout_width="wrap_content"
                 android:layout_height="20dp"
-                tools:srcCompat="@drawable/baseline_star_24" />
+                app:srcCompat="@drawable/baseline_star_24" />
 
             <TextView
                 android:id="@+id/textViewRatingPrev"
@@ -90,7 +91,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
             android:orientation="horizontal">
 
@@ -98,7 +99,7 @@
                 android:id="@+id/imageViewPeoplePrev"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
-                tools:srcCompat="@drawable/baseline_people_24" />
+                app:srcCompat="@drawable/baseline_people_24" />
 
             <TextView
                 android:id="@+id/textViewServesPrev"
@@ -111,7 +112,7 @@
                 android:id="@+id/imageViewClock"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
-                tools:srcCompat="@drawable/baseline_access_time_24" />
+                app:srcCompat="@drawable/baseline_access_time_24" />
 
             <TextView
                 android:id="@+id/textViewTimePrev"
@@ -119,6 +120,7 @@
                 android:layout_height="wrap_content"
                 android:text="1.5 hr" />
         </LinearLayout>
+
 
         <LinearLayout
             android:layout_width="match_parent"
