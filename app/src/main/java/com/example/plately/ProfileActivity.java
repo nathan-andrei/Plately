@@ -1,6 +1,7 @@
 package com.example.plately;
 
 //change package name
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ImageButton;
 import android.widget.Toast;
@@ -43,7 +44,13 @@ public class ProfileActivity extends AppCompatActivity {
         // Placeholder listener for the Settings button
         if (buttonSettings != null) {
             buttonSettings.setOnClickListener(v -> {
-                Toast.makeText(ProfileActivity.this, "Settings clicked (Feature not implemented)", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(ProfileActivity.this, "Settings clicked (Feature not implemented)", Toast.LENGTH_SHORT).show();
+
+                //For now, we log out for testing...
+                FirebaseController.getInstance().logOut();
+                Intent i = new Intent(this, LoginActivity.class);
+                startActivity(i);
+                finish();
             });
         }
     }
