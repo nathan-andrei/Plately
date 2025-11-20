@@ -29,8 +29,8 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
             android:background="@android:color/transparent"
-            android:src="@android:drawable/btn_star_big_off"
             android:contentDescription="Save recipe"
+            android:src="@drawable/outline_bookmark_24"
             android:tint="#FFFFFF" />
 
     </LinearLayout>
