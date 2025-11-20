@@ -13,13 +13,19 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.example.plately.databinding.ActivityMainBinding;
+import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -59,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
 
         binding.recyclerView.setAdapter(adapter);
 
-        fetchRecipesFromFirestore();
+        getRecipesFromDb();
 
         binding.buttonAddRecipe.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, AddRecipeActivity.class);
@@ -115,83 +121,88 @@ public class MainActivity extends AppCompatActivity {
                 );
     }
 
-    private void fetchRecipesFromFirestore() {
+    private Set<String> savedRecipeIds = new HashSet<>();
+    private void getRecipesFromDb() {
         String uid = auth.getUid();
         if (uid == null) return;
 
+        // Listen to user's saved recipes
         db.collection("users").document(uid)
-                .get()
-                .addOnSuccessListener(userDoc -> {
+                .addSnapshotListener((userDoc, e) -> {
+                    if (e != null || userDoc == null) return;
+
                     List<DocumentReference> savedRecipes = (List<DocumentReference>) userDoc.get("savedRecipes");
+                    savedRecipeIds.clear();
+                    if (savedRecipes != null) {
+                        for (DocumentReference ref : savedRecipes) {
+                            savedRecipeIds.add(ref.getId());
+                        }
+                    }
+                    adapter.notifyDataSetChanged(); // Refresh favorites only
+                });
 
-                    db.collection("recipes")
-                            .get()
-                            .addOnSuccessListener(querySnapshot -> {
-                                recipes.clear();
-                                for (var doc : querySnapshot) {
-                                    String recipeName = doc.getString("recipeName") != null ? doc.getString("recipeName") : "";
-                                    String source = doc.getString("source") != null ? doc.getString("source") : "";
-                                    String recipeDescription = doc.getString("recipeDescription") != null ? doc.getString("recipeDescription") : "";
+        // Listen to recipes collection
+        db.collection("recipes")
+                .addSnapshotListener((querySnapshot, ex) -> {
+                    if (ex != null || querySnapshot == null) return;
 
-                                    ArrayList<String> ingredients = new ArrayList<>();
-                                    Object ingredientsObj = doc.get("ingredients");
-                                    if (ingredientsObj instanceof List<?>) {
-                                        for (Object ing : (List<?>) ingredientsObj) {
-                                            if (ing instanceof String) ingredients.add((String) ing);
-                                        }
-                                    }
+                    recipes.clear(); // Clear old recipes before re-adding
+                    for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                        String recipeName = doc.getString("recipeName") != null ? doc.getString("recipeName") : "";
+                        String source = doc.getString("source") != null ? doc.getString("source") : "";
+                        String recipeDescription = doc.getString("recipeDescription") != null ? doc.getString("recipeDescription") : "";
 
-                                    ArrayList<String> steps = new ArrayList<>();
-                                    Object stepsObj = doc.get("steps");
-                                    if (stepsObj instanceof List<?>) {
-                                        for (Object step : (List<?>) stepsObj) {
-                                            if (step instanceof String) steps.add((String) step);
-                                        }
-                                    }
+                        ArrayList<String> ingredients = new ArrayList<>();
+                        Object ingredientsObj = doc.get("ingredients");
+                        if (ingredientsObj instanceof List<?>) {
+                            for (Object ing : (List<?>) ingredientsObj) {
+                                if (ing instanceof String) ingredients.add((String) ing);
+                            }
+                        }
 
-                                    ArrayList<String> tags = new ArrayList<>();
-                                    Object tagsObj = doc.get("tags");
-                                    if (tagsObj instanceof List<?>) {
-                                        for (Object tag : (List<?>) tagsObj) {
-                                            if (tag instanceof String) tags.add((String) tag);
-                                        }
-                                    }
+                        ArrayList<String> steps = new ArrayList<>();
+                        Object stepsObj = doc.get("steps");
+                        if (stepsObj instanceof List<?>) {
+                            for (Object step : (List<?>) stepsObj) {
+                                if (step instanceof String) steps.add((String) step);
+                            }
+                        }
 
-                                    Number servesNum = doc.get("servesPax") instanceof Number ? (Number) doc.get("servesPax") : 0;
-                                    Number prepNum = doc.get("prepTime") instanceof Number ? (Number) doc.get("prepTime") : 0;
-                                    Number cookNum = doc.get("cookTime") instanceof Number ? (Number) doc.get("cookTime") : 0;
+                        ArrayList<String> tags = new ArrayList<>();
+                        Object tagsObj = doc.get("tags");
+                        if (tagsObj instanceof List<?>) {
+                            for (Object tag : (List<?>) tagsObj) {
+                                if (tag instanceof String) tags.add((String) tag);
+                            }
+                        }
 
-                                    String recipeId = doc.getId();
+                        Number servesNum = doc.get("servesPax") instanceof Number ? (Number) doc.get("servesPax") : 0;
+                        Number prepNum = doc.get("prepTime") instanceof Number ? (Number) doc.get("prepTime") : 0;
+                        Number cookNum = doc.get("cookTime") instanceof Number ? (Number) doc.get("cookTime") : 0;
 
-                                    RecipeModel recipeModel = new RecipeModel(
-                                            recipeName,
-                                            source,
-                                            ingredients.toString(),
-                                            steps.toString(),
-                                            recipeDescription,
-                                            servesNum.doubleValue(),
-                                            prepNum.doubleValue(),
-                                            cookNum.doubleValue(),
-                                            "",
-                                            tags
-                                    );
-                                    recipeModel.setId(recipeId);
+                        String recipeId = doc.getId();
 
-                                    // Check if this recipe is in savedRecipes using stream().anyMatch()
-                                    boolean favorite = savedRecipes != null && savedRecipes.stream()
-                                            .anyMatch(ref -> ref.getId().equals(recipeId));
-                                    recipeModel.setFavorite(favorite);
+                        RecipeModel recipeModel = new RecipeModel(
+                                recipeName,
+                                source,
+                                ingredients.toString(),
+                                steps.toString(),
+                                recipeDescription,
+                                servesNum.doubleValue(),
+                                prepNum.doubleValue(),
+                                cookNum.doubleValue(),
+                                "",
+                                tags
+                        );
+                        recipeModel.setId(recipeId);
 
-                                    recipes.add(recipeModel);
-                                }
+                        // check if recipe is saved
+                        recipeModel.setFavorite(savedRecipeIds.contains(recipeId));
 
-                                adapter.notifyDataSetChanged();
-                            })
-                            .addOnFailureListener(e ->
-                                    Toast.makeText(this, "Failed to fetch recipes: " + e.getMessage(), Toast.LENGTH_SHORT).show());
-                })
-                .addOnFailureListener(e ->
-                        Toast.makeText(this, "Failed to fetch user data: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                        recipes.add(recipeModel);
+                    }
+                    adapter.notifyDataSetChanged();
+                });
     }
 
     private final ActivityResultLauncher<Intent> recipeDetailsLauncher = registerForActivityResult(

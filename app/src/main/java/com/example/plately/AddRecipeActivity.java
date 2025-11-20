@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.plately.databinding.ActivityAddRecipeBinding;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -64,6 +65,7 @@ public class AddRecipeActivity extends AppCompatActivity {
         loadTagsFromDatabase();
     }
 
+    // load tags collection
     private void loadTagsFromDatabase() {
         db.collection("tags")
                 .get()
@@ -77,6 +79,140 @@ public class AddRecipeActivity extends AppCompatActivity {
                         Toast.makeText(this, "Failed to load tags: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 
+    // save recipe
+    private void saveRecipe() {
+        String recipeName = binding.editTextRecipeName.getText().toString().trim();
+        String source = binding.editTextSourceInput.getText().toString().trim();
+        String ingredientsInput = binding.editTextIngredientsInput.getText().toString().trim();
+        String stepsInput = binding.editTextInstructionsInput.getText().toString().trim();
+        String recipeDescription = binding.editTextNotesInput.getText().toString().trim();
+
+        double servesPax = parseDouble(binding.editTextServesInput.getText().toString());
+        double prepTime = parseDouble(binding.editTextPrepTimeInput.getText().toString());
+        double cookTime = parseDouble(binding.editTextCookTimeInput.getText().toString());
+
+        if (recipeName.isEmpty()) {
+            binding.editTextRecipeName.setError("Recipe name required");
+            return;
+        }
+
+        // convert ingredients to a List<String>, separating the strings per line
+        List<String> ingredientsList = new ArrayList<>();
+        if (!ingredientsInput.isEmpty()) {
+            // Split by newline
+            String[] items = ingredientsInput.split("\\r?\\n");
+            for (String item : items) {
+                String trimmed = item.trim();
+                if (!trimmed.isEmpty()) ingredientsList.add(trimmed);
+            }
+        }
+
+        // convert steps to a List<String>, separating the strings per line
+        List<String> stepsList = new ArrayList<>();
+        if (!stepsInput.isEmpty()) {
+            String[] stepsArray = stepsInput.split("\\r?\\n");
+            for (String step : stepsArray) {
+                String trimmed = step.trim();
+                if (!trimmed.isEmpty()) stepsList.add(trimmed);
+            }
+        }
+
+        // use the tags selected from the popup
+        List<String> tagsList = selectedTags;
+
+        // save recipe
+        saveRecipeToFirestore(
+                recipeName,
+                source,
+                ingredientsList,
+                stepsList,
+                recipeDescription,
+                servesPax,
+                prepTime,
+                cookTime,
+                tagsList
+        );
+    }
+
+
+    /*private void uploadImageAndSave(String title, String source, String ingredients,
+                                    String instructions, String notes, double serves,
+                                    double prep, double cook) {
+
+        String currentUserId = dbAuth.getCurrentUser().getUid();
+        StorageReference imageRef = storageRef.child(currentUserId + "_" + System.currentTimeMillis() + ".jpg");
+
+        imageRef.putFile(selectedImageUri)
+                .addOnSuccessListener(task -> imageRef.getDownloadUrl().addOnSuccessListener(url -> {
+                    saveRecipeToFirestore(title, source, ingredients, instructions, notes,
+                            serves, prep, cook, url.toString());
+                }))
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Image upload failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+    }*/
+
+    private void saveRecipeToFirestore(String recipeName, String source,
+                                       List<String> ingredients, List<String> steps, String recipeDescription,
+                                       double servesPax, double prepTime, double cookTime, List<String> tags) {
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        if (currentUserId == null) return;
+
+        // create a reference for the author (users/[author])
+        DocumentReference authorRef = db.collection("users").document(currentUserId);
+        Map<String, Object> authorMap = new HashMap<>();
+        authorMap.put("uid", authorRef);
+
+        // set up the recipe model
+        Map<String, Object> recipe = new HashMap<>();
+        recipe.put("recipeName", recipeName);
+        recipe.put("source", source);
+        recipe.put("ingredients", ingredients != null ? ingredients : new ArrayList<String>());
+        recipe.put("steps", steps != null ? steps : new ArrayList<String>());
+        recipe.put("recipeDescription", recipeDescription != null ? recipeDescription : "");
+        recipe.put("servesPax", servesPax);
+        recipe.put("prepTime", prepTime);
+        recipe.put("cookTime", cookTime);
+        recipe.put("tags", tags != null ? tags : new ArrayList<String>());
+        recipe.put("recipeImages", new ArrayList<String>());
+        recipe.put("reviews", new ArrayList<String>());
+        recipe.put("author", authorMap);
+
+        // save to cloud db
+        db.collection("recipes")
+                .add(recipe)
+                .addOnSuccessListener(docRef -> {
+                    Toast.makeText(this, "Recipe saved!", Toast.LENGTH_SHORT).show();
+
+                    // Add recipe reference to user's createdRecipes
+                    db.collection("users")
+                            .document(currentUserId)
+                            .update("createdRecipes", FieldValue.arrayUnion(docRef))
+                            .addOnSuccessListener(unused -> Log.d("Firestore", "User createdRecipes updated"))
+                            .addOnFailureListener(e -> Log.e("Firestore", "Failed to update createdRecipes", e));
+
+                    finish();
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Error saving recipe: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+    }
+
+    private double parseDouble(String value) {
+        try { return Double.parseDouble(value); }
+        catch (Exception e) { return 0; }
+    }
+
+    // update the text view below tags
+    private void updateSelectedTagsTextView() {
+        if (selectedTags.isEmpty()) {
+            binding.textViewSelectedTags.setText("No tags selected");
+        } else {
+            binding.textViewSelectedTags.setText(String.join(", ", selectedTags));
+        }
+    }
+
+    //
     private void showTagDialog() {
         if (tagList.isEmpty()) {
             Toast.makeText(this, "No tags available", Toast.LENGTH_SHORT).show();
@@ -99,106 +235,12 @@ public class AddRecipeActivity extends AppCompatActivity {
                         selectedTags.remove(tagList.get(index));
                     }
                 });
-        builder.setPositiveButton("Done", null);
+
+        builder.setPositiveButton("Done", (dialog, which) -> {
+            updateSelectedTagsTextView();
+        });
+
         builder.create().show();
     }
-
-    private void saveRecipe() {
-        String title = binding.editTextRecipeName.getText().toString().trim();
-        String source = binding.editTextSourceInput.getText().toString().trim();
-        String ingredients = binding.editTextIngredientsInput.getText().toString().trim();
-        String instructions = binding.editTextInstructionsInput.getText().toString().trim();
-        String notes = binding.editTextNotesInput.getText().toString().trim();
-
-        double serves = parseDouble(binding.editTextServesInput.getText().toString());
-        double prep = parseDouble(binding.editTextPrepTimeInput.getText().toString());
-        double cook = parseDouble(binding.editTextCookTimeInput.getText().toString());
-
-        if (title.isEmpty()) {
-            binding.editTextRecipeName.setError("Title required");
-            return;
-        }
-
-        if (selectedImageUri != null) {
-            uploadImageAndSave(title, source, ingredients, instructions, notes, serves, prep, cook);
-        } else {
-            saveRecipeToFirestore(title, source, ingredients, instructions, notes, serves, prep, cook, null);
-        }
-    }
-
-
-    private void uploadImageAndSave(String title, String source, String ingredients,
-                                    String instructions, String notes, double serves,
-                                    double prep, double cook) {
-
-        String currentUserId = dbAuth.getCurrentUser().getUid();
-        StorageReference imageRef = storageRef.child(currentUserId + "_" + System.currentTimeMillis() + ".jpg");
-
-        imageRef.putFile(selectedImageUri)
-                .addOnSuccessListener(task -> imageRef.getDownloadUrl().addOnSuccessListener(url -> {
-                    saveRecipeToFirestore(title, source, ingredients, instructions, notes,
-                            serves, prep, cook, url.toString());
-                }))
-                .addOnFailureListener(e ->
-                        Toast.makeText(this, "Image upload failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
-    }
-
-
-
-    private void saveRecipeToFirestore(String title, String source,
-                                       String ingredients, String instructions, String notes,
-                                       double serves, double prep, double cook, String imageUrl) {
-
-        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
-        Map<String, Object> author = new HashMap<>();
-        author.put("uid", currentUserId);
-
-        Map<String, Object> recipe = new HashMap<>();
-        recipe.put("title", title);
-        recipe.put("source", source);
-        recipe.put("ingredients", ingredients);
-        recipe.put("instructions", instructions);
-        recipe.put("notes", notes);
-        recipe.put("serves", serves);
-        recipe.put("prepTime", prep);
-        recipe.put("cookTime", cook);
-        recipe.put("tags", selectedTags);
-        recipe.put("imageUrl", imageUrl);
-        recipe.put("author", author);
-
-        db.collection("recipes")
-                .add(recipe)
-                .addOnSuccessListener(docRef -> {
-                    Toast.makeText(this, "Recipe saved!", Toast.LENGTH_SHORT).show();
-
-                    DocumentReference recipeRef = db.collection("recipes").document(docRef.getId());
-                    db.collection("users")
-                            .document(currentUserId)
-                            .update("createdRecipes", com.google.firebase.firestore.FieldValue.arrayUnion(recipeRef))
-                            .addOnSuccessListener(unused -> Log.d("Firestore", "User createdRecipes updated"))
-                            .addOnFailureListener(e -> Log.e("Firestore", "Failed to update createdRecipes", e));
-
-                    finish();
-                })
-                .addOnFailureListener(e ->
-                        Toast.makeText(this, "Error saving recipe: " + e.getMessage(), Toast.LENGTH_SHORT).show());
-    }
-
-
-
-    private double parseDouble(String value) {
-        try { return Double.parseDouble(value); }
-        catch (Exception e) { return 0; }
-    }
-
-    private void updateSelectedTagsTextView() {
-        if (selectedTags.isEmpty()) {
-            binding.textViewSelectedTags.setText("No tags selected");
-        } else {
-            binding.textViewSelectedTags.setText(String.join(", ", selectedTags));
-        }
-    }
-
 
 }
