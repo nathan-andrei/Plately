@@ -24,7 +24,7 @@
             android:text="Recipe Details" />
 
         <ImageButton
-            android:id="@+id/imageViewSaveRecipe"
+            android:id="@+id/imageBtnSaveRecipe"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
@@ -32,6 +32,15 @@
             android:contentDescription="Save recipe"
             android:src="@drawable/outline_bookmark_24"
             android:tint="#FFFFFF" />
+
+        <ImageButton
+            android:id="@+id/imageBtnRecipeOptions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="View more"
+            android:src="@drawable/baseline_more_vert_24" />
 
     </LinearLayout>
 
