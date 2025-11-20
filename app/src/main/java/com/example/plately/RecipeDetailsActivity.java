@@ -75,7 +75,6 @@ public class RecipeDetailsActivity extends AppCompatActivity {
         setResult(RESULT_OK, resultIntent);
     }
 
-
     private void saveRecipeToSaved() {
         String uid = dbAuth.getUid();
         if (uid == null || recipeId == null) return;

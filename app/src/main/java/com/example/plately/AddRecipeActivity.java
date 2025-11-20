@@ -212,7 +212,7 @@ public class AddRecipeActivity extends AppCompatActivity {
         }
     }
 
-    // show tags popup 
+    //
     private void showTagDialog() {
         if (tagList.isEmpty()) {
             Toast.makeText(this, "No tags available", Toast.LENGTH_SHORT).show();
