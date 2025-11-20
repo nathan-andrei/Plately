@@ -25,6 +25,10 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
 public class LoginActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private FirebaseAuth dbAuth;
@@ -116,82 +120,81 @@ public class LoginActivity extends AppCompatActivity {
             viewAnimator.setDisplayedChild(0);
         });
     }
-    
-    private void setUpRegister(){
+
+    private void setUpRegister() {
         if(registerName == null)        registerName = findViewById(R.id.Display_Name_etv);
         if(registerEmail == null)       registerEmail = findViewById(R.id.Register_Email_etv);
         if(registerPassword == null)    registerPassword = findViewById(R.id.Register_Password_etv);
-        registerPasswordVisibility = false; //Default it back to not show
+        registerPasswordVisibility = false;
 
         findViewById(R.id.Register_btn).setOnClickListener(v -> {
             setUpOTP();
             viewAnimator.setDisplayedChild(3);
         });
-        
+
         findViewById(R.id.Register_back_btn).setOnClickListener(v ->{
             viewAnimator.setDisplayedChild(0);
         });
 
-        findViewById(R.id.Register_Toggle_Password_Visibility_btn).setOnClickListener(v ->{
-            if(!registerPasswordVisibility){ //currently set to hidden
-                //Show it
+        findViewById(R.id.Register_Toggle_Password_Visibility_btn).setOnClickListener(v -> {
+            if(!registerPasswordVisibility){
                 registerPassword.setTransformationMethod(null);
-                //Change the icon
-            }
-            else{ //If currently being shown
-                //Hide it
+            } else {
                 registerPassword.setTransformationMethod(new PasswordTransformationMethod());
-                //Change the icon
             }
-            //Flip the visibility variable
             registerPasswordVisibility = !registerPasswordVisibility;
         });
 
-        //Register user
-        findViewById(R.id.Register_btn).setOnClickListener(v ->{
-            String displayName = registerName.getText().toString().trim(),
-                    email = registerEmail.getText().toString().trim(),
-                    password = registerPassword.getText().toString().trim();
+        // Register user
+        findViewById(R.id.Register_btn).setOnClickListener(v -> {
+            String displayName = registerName.getText().toString().trim();
+            String email = registerEmail.getText().toString().trim();
+            String password = registerPassword.getText().toString().trim();
 
             UserModel newUser = new UserModel(displayName, email, password);
 
             dbAuth.createUserWithEmailAndPassword(newUser.getEmail(), newUser.getPassword())
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
                             Log.d("[Firebase] Register", "createUserWithEmail:success");
                             FirebaseUser user = dbAuth.getCurrentUser();
 
-                            //Attempt to add the user to the db as well (so we can have data like their recipes)
-                            db.collection("users").document(newUser.getUsername())
-                                    .set(newUser)
-                                    .addOnSuccessListener(aVoid -> {
-                                        Log.d("[Firebase] Register", "User successfully added to register!");
-                                        //If successful, then display good!
-                                        Toast.makeText(LoginActivity.this, "Registered Successfully!", Toast.LENGTH_SHORT).show();
-                                        viewAnimator.setDisplayedChild(0);
-                                    }).addOnFailureListener(e -> {
-                                        Log.d("[Firebase] Register", "Failed to add user to register!\n" + e);
-                                        //if not, display bad
-                                        //stay on this screen
-                                        //delete the auth user
-                                        Toast.makeText(LoginActivity.this, "Failed to register! Please try again", Toast.LENGTH_SHORT).show();
-                                    });
+                            if (user != null) {
+                                String uid = user.getUid();
+
+                                Map<String, Object> userMap = new HashMap<>();
+                                userMap.put("username", newUser.getUsername());
+                                userMap.put("email", newUser.getEmail());
+                                userMap.put("password", newUser.getPassword()); // optional, consider security
+                                userMap.put("createdRecipes", new ArrayList<>());
+                                userMap.put("createdReviews", new ArrayList<>());
+                                userMap.put("savedRecipes", new ArrayList<>());
+                                userMap.put("profilePicture", null);
+
+                                db.collection("users")
+                                        .document(uid)
+                                        .set(userMap)
+                                        .addOnSuccessListener(aVoid -> {
+                                            Log.d("[Firebase] Register", "User successfully added to Firestore!");
+                                            Toast.makeText(LoginActivity.this, "Registered Successfully!", Toast.LENGTH_SHORT).show();
+                                            viewAnimator.setDisplayedChild(0);
+                                        })
+                                        .addOnFailureListener(e -> {
+                                            Log.e("[Firebase] Register", "Failed to add user to Firestore!", e);
+                                            Toast.makeText(LoginActivity.this, "Failed to register! Please try again", Toast.LENGTH_SHORT).show();
+                                        });
+                            }
                         } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w("[Firebase] Register", "createUserWithEmail:failure", task.getException());
-                            Log.w("[Firebase] Register", "Email used:" + newUser.getEmail());
-                            Log.w("[Firebase] Register", "Password used:" + newUser.getPassword());
-                            //if not, display error
-                            // Password must be at least 6 (fix client-side)
-                            // email should not be deformed (fix client-side)
-                            //stay on this screen
-                            Toast.makeText(LoginActivity.this, "Failed to register. Please try again.", Toast.LENGTH_SHORT).show();
+                            Exception e = task.getException();
+                            if (e != null) {
+                                Log.e("[Firebase] Register", "createUserWithEmail:failure", e);
+                                Toast.makeText(LoginActivity.this, "Registration failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                            }
                         }
                     });
         });
     }
-    
+
     private void setUpOTP(){
         findViewById(R.id.OTP_Register_btn).setOnClickListener(v -> {
             setUpLogin();
