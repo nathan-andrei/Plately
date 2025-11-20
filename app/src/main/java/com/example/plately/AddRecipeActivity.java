@@ -65,6 +65,7 @@ public class AddRecipeActivity extends AppCompatActivity {
         loadTagsFromDatabase();
     }
 
+    // load tags collection
     private void loadTagsFromDatabase() {
         db.collection("tags")
                 .get()
@@ -78,38 +79,13 @@ public class AddRecipeActivity extends AppCompatActivity {
                         Toast.makeText(this, "Failed to load tags: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 
-    private void showTagDialog() {
-        if (tagList.isEmpty()) {
-            Toast.makeText(this, "No tags available", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        boolean[] checkedItems = new boolean[tagList.size()];
-        for (int i = 0; i < tagList.size(); i++) {
-            checkedItems[i] = selectedTags.contains(tagList.get(i));
-        }
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Select Tags");
-        builder.setMultiChoiceItems(tagList.toArray(new String[0]), checkedItems,
-                (dialog, index, isChecked) -> {
-                    if (isChecked) {
-                        if (!selectedTags.contains(tagList.get(index)))
-                            selectedTags.add(tagList.get(index));
-                    } else {
-                        selectedTags.remove(tagList.get(index));
-                    }
-                });
-        builder.setPositiveButton("Done", null);
-        builder.create().show();
-    }
-
+    // save recipe
     private void saveRecipe() {
         String recipeName = binding.editTextRecipeName.getText().toString().trim();
         String source = binding.editTextSourceInput.getText().toString().trim();
         String ingredientsInput = binding.editTextIngredientsInput.getText().toString().trim();
         String stepsInput = binding.editTextInstructionsInput.getText().toString().trim();
-        String recipeDescription = binding.editTextNotesInput.getText().toString().trim(); // Using notes as description
+        String recipeDescription = binding.editTextNotesInput.getText().toString().trim();
 
         double servesPax = parseDouble(binding.editTextServesInput.getText().toString());
         double prepTime = parseDouble(binding.editTextPrepTimeInput.getText().toString());
@@ -120,7 +96,7 @@ public class AddRecipeActivity extends AppCompatActivity {
             return;
         }
 
-        // Convert ingredients and steps to List<String>
+        // convert ingredients to a List<String>, separating the strings per line
         List<String> ingredientsList = new ArrayList<>();
         if (!ingredientsInput.isEmpty()) {
             // Split by newline
@@ -131,6 +107,7 @@ public class AddRecipeActivity extends AppCompatActivity {
             }
         }
 
+        // convert steps to a List<String>, separating the strings per line
         List<String> stepsList = new ArrayList<>();
         if (!stepsInput.isEmpty()) {
             String[] stepsArray = stepsInput.split("\\r?\\n");
@@ -140,11 +117,10 @@ public class AddRecipeActivity extends AppCompatActivity {
             }
         }
 
-
-        // Use tags selected in the dialog
+        // use the tags selected from the popup
         List<String> tagsList = selectedTags;
 
-        // Save recipe
+        // save recipe
         saveRecipeToFirestore(
                 recipeName,
                 source,
@@ -183,13 +159,12 @@ public class AddRecipeActivity extends AppCompatActivity {
         String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         if (currentUserId == null) return;
 
-        // Create a DocumentReference for the author
+        // create a reference for the author (users/[author])
         DocumentReference authorRef = db.collection("users").document(currentUserId);
         Map<String, Object> authorMap = new HashMap<>();
         authorMap.put("uid", authorRef);
 
-
-        // Prepare recipe document
+        // set up the recipe model
         Map<String, Object> recipe = new HashMap<>();
         recipe.put("recipeName", recipeName);
         recipe.put("source", source);
@@ -204,7 +179,7 @@ public class AddRecipeActivity extends AppCompatActivity {
         recipe.put("reviews", new ArrayList<String>());
         recipe.put("author", authorMap);
 
-        // Save to Firestore
+        // save to cloud db
         db.collection("recipes")
                 .add(recipe)
                 .addOnSuccessListener(docRef -> {
@@ -223,12 +198,12 @@ public class AddRecipeActivity extends AppCompatActivity {
                         Toast.makeText(this, "Error saving recipe: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 
-
     private double parseDouble(String value) {
         try { return Double.parseDouble(value); }
         catch (Exception e) { return 0; }
     }
 
+    // update the text view below tags
     private void updateSelectedTagsTextView() {
         if (selectedTags.isEmpty()) {
             binding.textViewSelectedTags.setText("No tags selected");
@@ -237,5 +212,35 @@ public class AddRecipeActivity extends AppCompatActivity {
         }
     }
 
+    // show tags popup 
+    private void showTagDialog() {
+        if (tagList.isEmpty()) {
+            Toast.makeText(this, "No tags available", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        boolean[] checkedItems = new boolean[tagList.size()];
+        for (int i = 0; i < tagList.size(); i++) {
+            checkedItems[i] = selectedTags.contains(tagList.get(i));
+        }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Select Tags");
+        builder.setMultiChoiceItems(tagList.toArray(new String[0]), checkedItems,
+                (dialog, index, isChecked) -> {
+                    if (isChecked) {
+                        if (!selectedTags.contains(tagList.get(index)))
+                            selectedTags.add(tagList.get(index));
+                    } else {
+                        selectedTags.remove(tagList.get(index));
+                    }
+                });
+
+        builder.setPositiveButton("Done", (dialog, which) -> {
+            updateSelectedTagsTextView();
+        });
+
+        builder.create().show();
+    }
 
 }
