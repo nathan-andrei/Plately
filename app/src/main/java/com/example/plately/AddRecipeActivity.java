@@ -33,7 +33,7 @@ public class AddRecipeActivity extends AppCompatActivity {
     private List<String> tagList = new ArrayList<>();
     private List<String> selectedTags = new ArrayList<>();
 
-    // Image picker launcher
+    //imaeg picker launcher
     ActivityResultLauncher<String> imagePickerLauncher =
             registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
                 if (uri != null) {
@@ -70,7 +70,6 @@ public class AddRecipeActivity extends AppCompatActivity {
                 .addOnSuccessListener(query -> {
                     tagList.clear();
                     for (var doc : query.getDocuments()) {
-                        // Use the field name you stored in Firestore
                         tagList.add(doc.getString("tagName"));
                     }
                 })

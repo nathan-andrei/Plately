@@ -3,6 +3,7 @@ package com.example.plately;
 import java.util.ArrayList;
 
 public class RecipeModel {
+    private String id;
     private String title;
     private String source;
     private String ingredients;
@@ -13,8 +14,8 @@ public class RecipeModel {
     private double cookTime;
     private String imageUrl;
     private ArrayList<String> tags;
+    private boolean isFavorite = false;
 
-    // Constructor with all fields
     public RecipeModel(String title, String source, String ingredients, String instructions,
                        String notes, double serves, double prepTime, double cookTime,
                        String imageUrl, ArrayList<String> tags) {
@@ -30,7 +31,8 @@ public class RecipeModel {
         this.tags = tags;
     }
 
-    // Getters
+    //getters
+    public String getId() { return id;}
     public String getTitle() { return title; }
     public String getSource() { return source; }
     public String getIngredients() { return ingredients; }
@@ -41,4 +43,9 @@ public class RecipeModel {
     public double getCookTime() { return cookTime; }
     public String getImageUrl() { return imageUrl; }
     public ArrayList<String> getTags() { return tags; }
+    public boolean isFavorite() { return isFavorite; }
+
+    // setters
+    public void setFavorite(boolean favorite) { this.isFavorite = favorite; }
+    public void setId(String id) { this.id = id;}
 }

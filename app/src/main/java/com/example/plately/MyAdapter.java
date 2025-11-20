@@ -13,10 +13,22 @@ import java.util.ArrayList;
 public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
 
     private final ArrayList<RecipeModel> recipes;
+    private OnRecipeFavoriteListener favoriteListener;
 
-    public MyAdapter(ArrayList<RecipeModel> recipes) {
-        this.recipes = recipes;
+    public interface OnRecipeClickListener {
+        void onRecipeClick(RecipeModel recipe);
     }
+
+    private final OnRecipeClickListener clickListener;
+
+    public MyAdapter(ArrayList<RecipeModel> recipes,
+                     OnRecipeFavoriteListener favoriteListener,
+                     OnRecipeClickListener clickListener) {
+        this.recipes = recipes;
+        this.favoriteListener = favoriteListener;
+        this.clickListener = clickListener;
+    }
+
 
     @NonNull
     @Override
@@ -28,11 +40,17 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
-        holder.bindData(recipes.get(position));
+        holder.bindData(recipes.get(position), favoriteListener, clickListener);
     }
+
 
     @Override
     public int getItemCount() {
         return recipes.size();
     }
+
+    public interface OnRecipeFavoriteListener {
+        void onFavoriteClick(String recipeId, boolean newState);
+    }
+
 }
