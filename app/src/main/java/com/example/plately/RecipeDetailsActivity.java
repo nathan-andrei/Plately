@@ -47,18 +47,18 @@ public class RecipeDetailsActivity extends AppCompatActivity {
         }
 
         isFavorite = getIntent().getBooleanExtra("isFavorite", false);
-        binding.imageViewSaveRecipe.setImageResource(
+        binding.imageBtnSaveRecipe.setImageResource(
                 isFavorite ? R.drawable.baseline_bookmark_24 : R.drawable.outline_bookmark_24
         );
 
-        binding.imageViewSaveRecipe.setOnClickListener(v -> {
+        binding.imageBtnSaveRecipe.setOnClickListener(v -> {
             isFavorite = !isFavorite;
 
             if (isFavorite) {
-                binding.imageViewSaveRecipe.setImageResource(R.drawable.baseline_bookmark_24);
+                binding.imageBtnSaveRecipe.setImageResource(R.drawable.baseline_bookmark_24);
                 saveRecipeToSaved();
             } else {
-                binding.imageViewSaveRecipe.setImageResource(R.drawable.outline_bookmark_24);
+                binding.imageBtnSaveRecipe.setImageResource(R.drawable.outline_bookmark_24);
                 removeRecipeFromSaved();
             }
 
