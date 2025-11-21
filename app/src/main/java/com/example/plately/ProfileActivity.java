@@ -136,10 +136,12 @@ public class ProfileActivity extends AppCompatActivity {
         // Apply Window Insets (Safety for system bars)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.layoutMainProfile), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0);
             return insets;
         });
     }
+
+    //SETUP FUNCTS
 
     private void setUpWidgets() {
         // Find the Settings button in the header toolbar

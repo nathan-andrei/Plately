@@ -64,6 +64,13 @@ public class RecipeDetailsActivity extends AppCompatActivity {
 
             sendFavoriteResult();
         });
+
+        // Apply Window Insets (Safety for system bars)
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.layoutMainRecipeDetails), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
     }
 
     private void sendFavoriteResult() {
