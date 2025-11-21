@@ -1,7 +1,11 @@
 package com.example.plately;
 
+import com.google.firebase.firestore.DocumentReference;
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class RecipeModel {
     private String id;
@@ -16,6 +20,7 @@ public class RecipeModel {
     private ArrayList<String> imageUrl;
     private ArrayList<String> tags;
     private boolean isFavorite = false;
+    private HashMap<String, DocumentReference> author;
 
     public RecipeModel() {
         id = null;
@@ -30,10 +35,11 @@ public class RecipeModel {
         imageUrl = null;
         tags = new ArrayList<>();
         isFavorite = false;
+        author = null;
     }
 
     public RecipeModel(String name, String source, ArrayList<String> ingredients, String instructions, double serves, double prepTime, double cookTime,
-                       ArrayList<String> imageUrl, ArrayList<String> tags, String recipeDescription) {
+                       ArrayList<String> imageUrl, ArrayList<String> tags, String recipeDescription, HashMap<String, DocumentReference> author) {
         this.recipeName = name;
         this.source = source;
         this.recipeDescription = recipeDescription;
@@ -44,6 +50,7 @@ public class RecipeModel {
         this.cookTime = cookTime;
         this.imageUrl = imageUrl;
         this.tags = tags;
+        this.author = author;
     }
 
     //getters
@@ -59,8 +66,10 @@ public class RecipeModel {
     public ArrayList<String> getImageUrl() { return imageUrl; }
     public ArrayList<String> getTags() { return tags; }
     public boolean isFavorite() { return isFavorite; }
+    public HashMap<String, DocumentReference> getAuthor() { return author; }
 
     // setters
     public void setFavorite(boolean favorite) { this.isFavorite = favorite; }
     public void setId(String id) { this.id = id;}
+    public void setAuthor(HashMap<String, DocumentReference> author) {this.author = author; }
 }
