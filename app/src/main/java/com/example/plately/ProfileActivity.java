@@ -1,8 +1,13 @@
 package com.example.plately;
 
 //change package name
+import static android.view.View.VISIBLE;
+
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.Html;
@@ -18,12 +23,14 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.canhub.cropper.CropImageView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -46,6 +53,14 @@ public class ProfileActivity extends AppCompatActivity {
     private MyAdapter createdRecipesAdapter, savedRecipesAdapter;
     private ArrayList<RecipeModel> createdRecipes = new ArrayList<>(),
                                     savedRecipes = new ArrayList<>();
+    private CropImageView ciw;
+    //private Uri takePicture = registerForActivityResult(ActivityResultContracts.TakePicture()) {
+     //   if (it) {
+            //startCameraWithUri()
+    //    } else {
+      //      showErrorMessage("taking picture failed")
+     //   }
+    //}
 
     //DB variables
     private FirebaseFirestore db;
@@ -60,6 +75,8 @@ public class ProfileActivity extends AppCompatActivity {
 
         createdRecipesAdapter= new MyAdapter(createdRecipes);
         createdRecipesRV.setAdapter(createdRecipesAdapter);
+
+        ciw = new CropImageView(this);
 
         //Set the class variable
         for(DocumentReference dr : user.getCreatedRecipes()){
@@ -132,6 +149,7 @@ public class ProfileActivity extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
         dbAuth = FirebaseAuth.getInstance();
+        ciw = findViewById(R.id.cropImageView);
 
         // --- Setup Methods ---
         setUpWidgets();
@@ -178,8 +196,31 @@ public class ProfileActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if(item.getItemId() == R.id.Profile_Edit_Photo){
-            //Intent i = new Intent(ProfileActivity.this, SettingsActivity.class);
-            //startActivity(i);
+            //Check if we don't have permissions to use camera and write to storage. (maybe move to seperate function)
+            //If so, request permissions
+            if(ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+
+                requestPermissions(new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 100); //100 request code is arbitrary
+
+            }
+            //User DOES have camera permissions.
+            else{
+                ciw.setOnCropImageCompleteListener(new CropImageView.OnCropImageCompleteListener() {
+                    @Override
+                    public void onCropImageComplete(@NonNull CropImageView cropImageView, @NonNull CropImageView.CropResult cropResult) {
+                        ciw.getCroppedImage();
+                    }
+                });
+                Intent intent = new Intent(ProfileActivity.this, CameraActivity.class);
+                cameraLauncher.launch(intent); //Retrieve the info from the intentLauncher
+            }
+
+            //Check if user allows access to storage (gallery)
+            if(ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED){
+                //Request only for the write perms
+                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 100); //100 request code is arbitrary
+            }
             return true;
         }
         else if(item.getItemId() == R.id.Profile_Edit_Name){
@@ -252,24 +293,16 @@ public class ProfileActivity extends AppCompatActivity {
         }
     }
 
-    /*private final ActivityResultLauncher<Intent> recipeDetailsLauncher = registerForActivityResult(
+    private final ActivityResultLauncher<Intent> cameraLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
                 if (result.getResultCode() == Activity.RESULT_OK) {
                     Intent data = result.getData();
                     if (data != null) {
-                        String recipeId = data.getStringExtra("recipeId");
-                        boolean newState = data.getBooleanExtra("isFavorite", false);
-
-                        for (RecipeModel r : recipes) {
-                            if (r.getId().equals(recipeId)) {
-                                r.setFavorite(newState);
-                                break;
-                            }
-                        }
-                        adapter.notifyDataSetChanged();
+                        ciw.setVisibility(VISIBLE);
+                        ciw.setImageUriAsync(Uri.parse(data.getStringExtra("URI_KEY")));
                     }
                 }
             }
-    );*/
+    );
 }

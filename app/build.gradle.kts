@@ -50,6 +50,12 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+    //Camera dependencies
+    implementation("androidx.camera:camera-core:1.5.1")
+    implementation("androidx.camera:camera-camera2:1.5.1")
+    implementation("androidx.camera:camera-lifecycle:1.5.1")
+    implementation("androidx.camera:camera-view:1.5.1")
+    implementation("com.vanniktech:android-image-cropper:4.6.0") //Image cropper
 
     // Import the Firebase BoM
     implementation(platform("com.google.firebase:firebase-bom:34.6.0"))
