@@ -17,9 +17,9 @@ public class MyViewHolder extends RecyclerView.ViewHolder {
     }
 
     public void bindData(RecipeModel recipe, MyAdapter.OnRecipeFavoriteListener listener, MyAdapter.OnRecipeClickListener clickListener) {
-        binding.textViewRecipeNamePrev.setText(recipe.getTitle());
+        binding.textViewRecipeNamePrev.setText(recipe.getRecipeName());
         binding.textViewRecipeAuthorPrev.setText(recipe.getSource());
-        binding.textViewDescriptionPrev.setText(recipe.getNotes());
+        binding.textViewDescriptionPrev.setText(recipe.getRecipeDescription());
 
         // image loading using glide
         /*Glide.with(binding.imageViewFood.getContext())
@@ -50,6 +50,29 @@ public class MyViewHolder extends RecyclerView.ViewHolder {
                 listener.onFavoriteClick(recipe.getId(), newState);
             }
         });
+
+        binding.getRoot().setOnClickListener(v -> {
+            if (clickListener != null) {
+                clickListener.onRecipeClick(recipe);
+            }
+        });
+    }
+
+    //Modified function for recipe that doesn't have favourite buttons (User created/owns the recipe)
+    public void bindData(RecipeModel recipe, MyAdapter.OnRecipeClickListener clickListener) {
+        binding.textViewRecipeNamePrev.setText(recipe.getRecipeName());
+        binding.textViewRecipeAuthorPrev.setText(recipe.getSource());
+        binding.textViewDescriptionPrev.setText(recipe.getRecipeDescription());
+
+        // initial state of icon
+        binding.buttonFavorite.setImageResource(
+                recipe.isFavorite()
+                        ? R.drawable.baseline_bookmark_24
+                        : R.drawable.outline_bookmark_24
+        );
+
+        // favorite click
+        binding.buttonFavorite.setVisibility(View.GONE);
 
         binding.getRoot().setOnClickListener(v -> {
             if (clickListener != null) {

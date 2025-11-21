@@ -83,33 +83,13 @@
                 android:textColor="#D32F2F"
                 android:layout_marginBottom="8dp" />
 
-            <LinearLayout
+            <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/layoutMyRecipesContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="#FAFAFA"
                 android:orientation="vertical"
-                android:paddingBottom="16dp"
-                android:background="#FAFAFA">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="8dp"
-                    android:textSize="16sp"
-                    android:text="Spicy Ramen Bowl"
-                    android:background="?android:attr/selectableItemBackground"
-                    android:textColor="@android:color/black"/>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="8dp"
-                    android:textSize="16sp"
-                    android:text="Quick Chocolate Chip Cookies"
-                    android:background="?android:attr/selectableItemBackground"
-                    android:textColor="@android:color/black"/>
-
-            </LinearLayout>
+                android:paddingBottom="16dp" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -121,33 +101,13 @@
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="8dp" />
 
-            <LinearLayout
+            <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/layoutSavedRecipesContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="#FAFAFA"
                 android:orientation="vertical"
-                android:paddingBottom="16dp"
-                android:background="#FAFAFA">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="8dp"
-                    android:textSize="16sp"
-                    android:text="Best Tacos Al Pastor"
-                    android:background="?android:attr/selectableItemBackground"
-                    android:textColor="@android:color/black"/>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="8dp"
-                    android:textSize="16sp"
-                    android:text="Healthy Smoothie Guide"
-                    android:background="?android:attr/selectableItemBackground"
-                    android:textColor="@android:color/black"/>
-
-            </LinearLayout>
+                android:paddingBottom="16dp" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -159,33 +119,13 @@
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="8dp" />
 
-            <LinearLayout
+            <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/layoutMyReviewsContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="#FAFAFA"
                 android:orientation="vertical"
-                android:paddingBottom="16dp"
-                android:background="#FAFAFA">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="8dp"
-                    android:textSize="16sp"
-                    android:text="Review on Pasta Carbonara: 'Too creamy'"
-                    android:background="?android:attr/selectableItemBackground"
-                    android:textColor="@android:color/black"/>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="8dp"
-                    android:textSize="16sp"
-                    android:text="Review on Pancakes: 'Perfect!'"
-                    android:background="?android:attr/selectableItemBackground"
-                    android:textColor="@android:color/black"/>
-
-            </LinearLayout>
+                android:paddingBottom="16dp" />
 
             <View
                 android:layout_width="match_parent"

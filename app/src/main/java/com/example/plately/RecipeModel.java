@@ -1,30 +1,45 @@
 package com.example.plately;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class RecipeModel {
     private String id;
-    private String title;
+    private String recipeName;
+    private String recipeDescription;
     private String source;
-    private String ingredients;
+    private ArrayList<String> ingredients;
     private String instructions;
-    private String notes;
-    private double serves;
+    private double servesPax;
     private double prepTime;
     private double cookTime;
-    private String imageUrl;
+    private ArrayList<String> imageUrl;
     private ArrayList<String> tags;
     private boolean isFavorite = false;
 
-    public RecipeModel(String title, String source, String ingredients, String instructions,
-                       String notes, double serves, double prepTime, double cookTime,
-                       String imageUrl, ArrayList<String> tags) {
-        this.title = title;
+    public RecipeModel() {
+        id = null;
+        recipeName = null;
+        source = null;
+        recipeDescription = null;
+        ingredients = null;
+        instructions = null;
+        servesPax = 0.0;
+        prepTime = 0.0;
+        cookTime = 0.0;
+        imageUrl = null;
+        tags = new ArrayList<>();
+        isFavorite = false;
+    }
+
+    public RecipeModel(String name, String source, ArrayList<String> ingredients, String instructions, double serves, double prepTime, double cookTime,
+                       ArrayList<String> imageUrl, ArrayList<String> tags, String recipeDescription) {
+        this.recipeName = name;
         this.source = source;
+        this.recipeDescription = recipeDescription;
         this.ingredients = ingredients;
         this.instructions = instructions;
-        this.notes = notes;
-        this.serves = serves;
+        this.servesPax = serves;
         this.prepTime = prepTime;
         this.cookTime = cookTime;
         this.imageUrl = imageUrl;
@@ -33,15 +48,15 @@ public class RecipeModel {
 
     //getters
     public String getId() { return id;}
-    public String getTitle() { return title; }
+    public String getRecipeName() { return recipeName; }
     public String getSource() { return source; }
-    public String getIngredients() { return ingredients; }
+    public ArrayList<String> getIngredients() { return ingredients; }
+    public String getRecipeDescription() {return recipeDescription; }
     public String getInstructions() { return instructions; }
-    public String getNotes() { return notes; }
-    public double getServes() { return serves; }
+    public double getServesPax() { return servesPax; }
     public double getPrepTime() { return prepTime; }
     public double getCookTime() { return cookTime; }
-    public String getImageUrl() { return imageUrl; }
+    public ArrayList<String> getImageUrl() { return imageUrl; }
     public ArrayList<String> getTags() { return tags; }
     public boolean isFavorite() { return isFavorite; }
 
