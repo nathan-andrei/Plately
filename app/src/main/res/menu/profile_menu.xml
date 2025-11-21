@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/Profile_Edit_Photo"
+        android:title="Edit Profile Photo" />
+    <item
+        android:id="@+id/Profile_Edit_Name"
+        android:title="Edit user name" />
+    <item
+        android:id="@+id/Profile_LogOut"
+        android:title="Log Out" />
+</menu>

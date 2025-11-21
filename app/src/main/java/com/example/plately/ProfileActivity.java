@@ -5,7 +5,10 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.text.Html;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -126,12 +129,26 @@ public class ProfileActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_profile);
 
+
         db = FirebaseFirestore.getInstance();
         dbAuth = FirebaseAuth.getInstance();
 
         // --- Setup Methods ---
         setUpWidgets();
         setUpListeners();
+        //Tried to change action bar text to white, did not work...
+        getSupportActionBar().setTitle(Html.fromHtml("<font color='FFFFFF'>Your Profile</font>"));
+
+        //Set up the bottom nav bar buttons
+        findViewById(R.id.buttonAddRecipe).setOnClickListener(v -> {
+            Intent intent = new Intent(ProfileActivity.this, AddRecipeActivity.class);
+            startActivity(intent);
+        });
+
+        findViewById(R.id.buttonHome).setOnClickListener(v -> {
+            Intent intent = new Intent(ProfileActivity.this, MainActivity.class);
+            startActivity(intent);
+        });
 
         // Apply Window Insets (Safety for system bars)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.layoutMainProfile), (v, insets) -> {
@@ -139,6 +156,47 @@ public class ProfileActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0);
             return insets;
         });
+    }
+
+    //OPtions menus??
+    /* Lifted from our SharedPref Exercise.
+     * Responsible for inflating the options menu on the upper right corner of the screen.
+     * */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        super.onCreateOptionsMenu(menu);
+        getMenuInflater().inflate(R.menu.profile_menu, menu);
+        return true;
+    }
+
+    /*
+     * A little overkill tbh, but this method is responsible for handling the selection of items
+     * in the options menu. There's only one item anyway -- Settings, which leads the user to the
+     * Settings activity.
+     * */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.getItemId() == R.id.Profile_Edit_Photo){
+            //Intent i = new Intent(ProfileActivity.this, SettingsActivity.class);
+            //startActivity(i);
+            return true;
+        }
+        else if(item.getItemId() == R.id.Profile_Edit_Name){
+            //Intent i = new Intent(ProfileActivity.this, SettingsActivity.class);
+            //startActivity(i);
+            return true;
+        }
+        else if(item.getItemId() == R.id.Profile_LogOut){
+            FirebaseController.getInstance().logOut();
+            Intent i = new Intent(this, LoginActivity.class);
+            startActivity(i);
+            finish();
+            return true;
+        }
+        else{
+            return super.onOptionsItemSelected(item);
+        }
     }
 
     //SETUP FUNCTS

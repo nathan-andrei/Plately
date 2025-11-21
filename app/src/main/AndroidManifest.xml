@@ -28,7 +28,8 @@
 
         <activity android:name=".AddRecipeActivity" />
 
-        <activity android:name=".ProfileActivity" />
+        <activity android:name=".ProfileActivity"
+                    android:theme="@style/Profile" />
 
         <activity android:name=".RecipeDetailsActivity" />
 
