@@ -1,6 +1,8 @@
 package com.example.plately;
 
+import android.content.Intent;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
@@ -29,6 +31,13 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
         this.clickListener = clickListener;
     }
 
+    //Modified MyAdapter that won't render the favourite button and will be given its intent launcher.
+    public MyAdapter(ArrayList<RecipeModel> recipes) {
+        this.recipes = recipes;
+        this.favoriteListener = null;
+        this.clickListener = null;
+    }
+
 
     @NonNull
     @Override
@@ -40,7 +49,18 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
-        holder.bindData(recipes.get(position), favoriteListener, clickListener);
+        //Check if adapter is not given a favourite listener. If not, do not render the favouriteButton
+        if(this.favoriteListener != null)
+            holder.bindData(recipes.get(position), favoriteListener, clickListener);
+        else {
+            holder.bindData(recipes.get(position), clickListener);
+            holder.itemView.setOnClickListener(v -> {
+                Intent i = new Intent(holder.itemView.getContext(), RecipeDetailsActivity.class);
+
+                holder.itemView.getContext().startActivity(i);
+            });
+
+        }
     }
 
 

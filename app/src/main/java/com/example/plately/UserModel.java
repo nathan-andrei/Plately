@@ -1,11 +1,17 @@
 package com.example.plately;
 
+import android.net.Uri;
+
+import com.google.firebase.firestore.DocumentReference;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+
 public class UserModel {
     private String username, email, password;
-    //TEMPORARY DATATYPES
-    private String[] createdRecipes;
-    private String[] createdReviews;
-    private String[] savedRecipes;
+    private ArrayList<DocumentReference> createdRecipes;
+    private ArrayList<DocumentReference> createdReviews;
+    private ArrayList<DocumentReference> savedRecipes;
     private String profilePicture;
 
     public UserModel(){
@@ -40,17 +46,17 @@ public class UserModel {
 
     public void setPassword(String password) { this.password = password; }
 
-    public String[] getCreatedRecipes() { return createdRecipes; }
+    public ArrayList<DocumentReference> getCreatedRecipes() { return createdRecipes; }
 
-    public void setCreatedRecipes(String[] createdRecipes) { this.createdRecipes = createdRecipes; }
+    public void setCreatedRecipes(ArrayList<DocumentReference> createdRecipes) { this.createdRecipes = createdRecipes;}
 
-    public String[] getCreatedReviews() { return createdReviews; }
+    public ArrayList<DocumentReference> getCreatedReviews() { return createdReviews; }
 
-    public void setCreatedReviews(String[] createdReviews) { this.createdReviews = createdReviews; }
+    public void setCreatedReviews(ArrayList<DocumentReference> createdReviews) { this.createdReviews = createdReviews;}
 
-    public String[] getSavedRecipes() { return savedRecipes; }
+    public ArrayList<DocumentReference> getSavedRecipes() { return savedRecipes; }
 
-    public void setSavedRecipes(String[] savedRecipes) { this.savedRecipes = savedRecipes; }
+    public void setSavedRecipes(ArrayList<DocumentReference> savedRecipes) { this.savedRecipes = savedRecipes; }
 
     public String getProfilePicture() { return profilePicture; }
 

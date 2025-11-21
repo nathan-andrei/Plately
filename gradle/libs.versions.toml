@@ -10,6 +10,7 @@ constraintlayout = "2.2.1"
 recyclerview = "1.4.0"
 firebaseFirestore = "26.0.2"
 firebaseAuth = "24.0.1"
+firebaseStorage = "22.0.1"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -24,6 +25,7 @@ material3 = { module = "androidx.compose.material3:material3" }
 recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebaseAuth" }
+firebase-storage = { group = "com.google.firebase", name = "firebase-storage", version.ref = "firebaseStorage" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

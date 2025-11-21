@@ -3,6 +3,7 @@ package com.example.plately;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -131,7 +132,9 @@ public class MainActivity extends AppCompatActivity {
                 .addSnapshotListener((userDoc, e) -> {
                     if (e != null || userDoc == null) return;
 
-                    List<DocumentReference> savedRecipes = (List<DocumentReference>) userDoc.get("savedRecipes");
+                    //Add a suppress warning here for an unchecked Type reference, it works so :shrug:
+                    @SuppressWarnings("unchecked")
+                    List<DocumentReference> savedRecipes = (List<DocumentReference>)userDoc.get("savedRecipes");
                     savedRecipeIds.clear();
                     if (savedRecipes != null) {
                         for (DocumentReference ref : savedRecipes) {
@@ -148,60 +151,16 @@ public class MainActivity extends AppCompatActivity {
 
                     recipes.clear(); // Clear old recipes before re-adding
                     for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
-                        String recipeName = doc.getString("recipeName") != null ? doc.getString("recipeName") : "";
-                        String source = doc.getString("source") != null ? doc.getString("source") : "";
-                        String recipeDescription = doc.getString("recipeDescription") != null ? doc.getString("recipeDescription") : "";
-
-                        ArrayList<String> ingredients = new ArrayList<>();
-                        Object ingredientsObj = doc.get("ingredients");
-                        if (ingredientsObj instanceof List<?>) {
-                            for (Object ing : (List<?>) ingredientsObj) {
-                                if (ing instanceof String) ingredients.add((String) ing);
-                            }
-                        }
-
-                        ArrayList<String> steps = new ArrayList<>();
-                        Object stepsObj = doc.get("steps");
-                        if (stepsObj instanceof List<?>) {
-                            for (Object step : (List<?>) stepsObj) {
-                                if (step instanceof String) steps.add((String) step);
-                            }
-                        }
-
-                        ArrayList<String> tags = new ArrayList<>();
-                        Object tagsObj = doc.get("tags");
-                        if (tagsObj instanceof List<?>) {
-                            for (Object tag : (List<?>) tagsObj) {
-                                if (tag instanceof String) tags.add((String) tag);
-                            }
-                        }
-
-                        Number servesNum = doc.get("servesPax") instanceof Number ? (Number) doc.get("servesPax") : 0;
-                        Number prepNum = doc.get("prepTime") instanceof Number ? (Number) doc.get("prepTime") : 0;
-                        Number cookNum = doc.get("cookTime") instanceof Number ? (Number) doc.get("cookTime") : 0;
-
-                        String recipeId = doc.getId();
-
-                        RecipeModel recipeModel = new RecipeModel(
-                                recipeName,
-                                source,
-                                ingredients.toString(),
-                                steps.toString(),
-                                recipeDescription,
-                                servesNum.doubleValue(),
-                                prepNum.doubleValue(),
-                                cookNum.doubleValue(),
-                                "",
-                                tags
-                        );
-                        recipeModel.setId(recipeId);
+                        Log.d("[Firestore] RecipeList: Read", "Recieved recipe: " + doc.getId());
+                        RecipeModel recipeModel = doc.toObject(RecipeModel.class);
+                        recipeModel.setId(doc.getId());
 
                         // check if recipe is saved
-                        recipeModel.setFavorite(savedRecipeIds.contains(recipeId));
+                        recipeModel.setFavorite(savedRecipeIds.contains(doc.getId()));
 
                         recipes.add(recipeModel);
+                        adapter.notifyItemInserted(recipes.size());
                     }
-                    adapter.notifyDataSetChanged();
                 });
     }
 
