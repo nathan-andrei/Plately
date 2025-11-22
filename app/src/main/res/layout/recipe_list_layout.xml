@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="180dp"
     android:layout_marginBottom="16dp"
     android:background="@drawable/custom_border"
     android:paddingStart="12dp"
@@ -137,7 +137,9 @@
                 android:paddingTop="4dp"
                 android:paddingEnd="8dp"
                 android:paddingBottom="4dp"
-                android:text="Vegan" />
+                android:text="Vegan"
+                android:maxLines="1"
+                android:ellipsize="end"/>
 
             <TextView
                 android:id="@+id/textViewTag2Prev"
@@ -149,7 +151,10 @@
                 android:paddingTop="4dp"
                 android:paddingEnd="8dp"
                 android:paddingBottom="4dp"
-                android:text="Comfort Food" />
+                android:text="Comfort Food"
+                android:maxLines="1"
+                android:ellipsize="end"/>
+
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

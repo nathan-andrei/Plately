@@ -23,10 +23,7 @@ public class MyViewHolder extends RecyclerView.ViewHolder {
     }
 
     public void bindData(RecipeModel recipe, MyAdapter.OnRecipeFavoriteListener listener, MyAdapter.OnRecipeClickListener clickListener) {
-        binding.textViewRecipeNamePrev.setText(recipe.getRecipeName());
-        binding.textViewRecipeAuthorPrev.setText(recipe.getSource());
-        binding.textViewDescriptionPrev.setText(recipe.getRecipeDescription());
-
+        displayPreviewRecipe(recipe);
         // initial state of icon
         binding.buttonFavorite.setImageResource(
                 recipe.isFavorite()
@@ -67,9 +64,7 @@ public class MyViewHolder extends RecyclerView.ViewHolder {
 
     //Modified function for recipe that doesn't have favourite buttons (User created/owns the recipe)
     public void bindData(RecipeModel recipe, MyAdapter.OnRecipeClickListener clickListener) {
-        binding.textViewRecipeNamePrev.setText(recipe.getRecipeName());
-        binding.textViewRecipeAuthorPrev.setText(recipe.getSource());
-        binding.textViewDescriptionPrev.setText(recipe.getRecipeDescription());
+        displayPreviewRecipe(recipe);
 
         // initial state of icon
         binding.buttonFavorite.setImageResource(
@@ -87,4 +82,70 @@ public class MyViewHolder extends RecyclerView.ViewHolder {
             }
         });
     }
+
+    private void displayPreviewRecipe(RecipeModel recipe) {
+        // recipe name
+        binding.textViewRecipeNamePrev.setText(
+                recipe.getRecipeName() != null ? recipe.getRecipeName() : ""
+        );
+
+        // author, fetch username from author uid
+        if (recipe.getAuthor() != null && recipe.getAuthor().get("uid") != null) {
+            recipe.getAuthor().get("uid").get()
+                    .addOnSuccessListener(docSnap -> {
+                        String username = docSnap.getString("username");
+                        binding.textViewRecipeAuthorPrev.setText("By: " + (username != null ? username : "Unknown"));
+                    })
+                    .addOnFailureListener(e -> binding.textViewRecipeAuthorPrev.setText("By: Unknown"));
+        } else {
+            binding.textViewRecipeAuthorPrev.setText("By: Unknown");
+        }
+
+        // description
+        binding.textViewDescriptionPrev.setText(
+                recipe.getRecipeDescription() != null ? recipe.getRecipeDescription() : ""
+        );
+
+        // tags up to 2 only
+        if (recipe.getTags() != null && !recipe.getTags().isEmpty()) {
+            binding.textViewTagPrev.setText(recipe.getTags().get(0));
+            binding.textViewTagPrev.setVisibility(View.VISIBLE);
+
+            if (recipe.getTags().size() > 1) {
+                binding.textViewTag2Prev.setText(recipe.getTags().get(1));
+                binding.textViewTag2Prev.setVisibility(View.VISIBLE);
+            } else {
+                binding.textViewTag2Prev.setVisibility(View.GONE);
+            }
+        } else {
+            binding.textViewTagPrev.setVisibility(View.GONE);
+            binding.textViewTag2Prev.setVisibility(View.GONE);
+        }
+
+        // serves x people
+        if (recipe.getServesPax() > 0) {
+            binding.textViewServesPrev.setText("Serves " + (int) recipe.getServesPax());
+            binding.textViewServesPrev.setVisibility(View.VISIBLE);
+        } else {
+            binding.textViewServesPrev.setVisibility(View.GONE);
+        }
+
+        // total time
+        double totalTime = recipe.getPrepTime() + recipe.getCookTime();
+        if (totalTime > 0) {
+            String timeText;
+            if (totalTime < 60) {
+                timeText = (int) totalTime + " min";
+            } else {
+                int hours = (int) totalTime / 60;
+                int minutes = (int) totalTime % 60;
+                timeText = hours + " hr" + (minutes > 0 ? " " + minutes + " min" : "");
+            }
+            binding.textViewTimePrev.setText(timeText);
+            binding.textViewTimePrev.setVisibility(View.VISIBLE);
+        } else {
+            binding.textViewTimePrev.setVisibility(View.GONE);
+        }
+    }
+
 }

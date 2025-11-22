@@ -121,22 +121,52 @@
                     android:id="@+id/textViewServings"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/baseline_people_24"
                     android:drawablePadding="4dp"
-                    android:textSize="16sp"
-                    android:drawableStart="@android:drawable/ic_menu_myplaces"
                     android:drawableTint="@android:color/black"
-                    android:text="Servings: 4" />
+                    android:text="Servings: 4"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/textViewTotalTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:drawableStart="@drawable/baseline_access_time_24"
+                    android:drawablePadding="4dp"
+                    android:drawableTint="@android:color/black"
+                    android:text="Total time: 45 min"
+                    android:textSize="16sp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="4dp">
+
+                <TextView
+                    android:id="@+id/textViewPrepTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/baseline_access_time_24"
+                    android:drawablePadding="4dp"
+                    android:drawableTint="@android:color/black"
+                    android:text="Prep time:"
+                    android:textSize="16sp" />
 
                 <TextView
                     android:id="@+id/textViewCookingTime"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
+                    android:drawableStart="@drawable/baseline_access_time_24"
                     android:drawablePadding="4dp"
-                    android:textSize="16sp"
-                    android:drawableStart="@android:drawable/ic_menu_recent_history"
                     android:drawableTint="@android:color/black"
-                    android:text="Time: 45 min" />
+                    android:text="Cooking time:"
+                    android:textSize="16sp" />
+
             </LinearLayout>
 
             <TextView
@@ -175,6 +205,33 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
+                android:text="Ingredients"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:id="@+id/ingredientsContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="8dp">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:text="1 cup of rice"
+                    android:paddingBottom="8dp"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:text="yess"/>
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
                 android:text="Steps"
                 android:textSize="18sp"
                 android:textStyle="bold" />
@@ -203,6 +260,22 @@
                     android:textSize="16sp"
                     android:text="3. Combine noodles and broth, garnish with desired toppings."/>
             </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Source"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/textViewSource"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textSize="16sp"
+                android:text="insert youtube link" />
 
             <TextView
                 android:layout_width="wrap_content"
