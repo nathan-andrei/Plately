@@ -51,11 +51,11 @@ public class MainActivity extends AppCompatActivity {
         recipes = new ArrayList<>();
         adapter = new MyAdapter(
                 recipes,
-                (recipeId, newState) -> {  // favorite listener
+                (recipeId, newState) -> {  // favorite listener to update favorite status
                     if (newState) saveRecipeToSaved(recipeId);
                     else removeRecipeFromSaved(recipeId);
                 },
-                recipe -> { // click listener
+                recipe -> { // click listener launches recipe details
                     Intent intent = new Intent(MainActivity.this, RecipeDetailsActivity.class);
                     intent.putExtra("recipeId", recipe.getId());
                     intent.putExtra("isFavorite", recipe.isFavorite());
@@ -94,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    // once recipe is saved update db
     private void saveRecipeToSaved(String recipeId) {
         String uid = auth.getUid();
         if (uid == null) return;
@@ -108,6 +109,7 @@ public class MainActivity extends AppCompatActivity {
                 );
     }
 
+    // remove recipe from saved under users collection
     private void removeRecipeFromSaved(String recipeId) {
         String uid = auth.getUid();
         if (uid == null) return;
@@ -123,11 +125,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private Set<String> savedRecipeIds = new HashSet<>();
+
+    // retrieve recipes from database
     private void getRecipesFromDb() {
         String uid = auth.getUid();
         if (uid == null) return;
 
-        // Listen to user's saved recipes
+        // get user's saved recipes to load correct favorite button state
         db.collection("users").document(uid)
                 .addSnapshotListener((userDoc, e) -> {
                     if (e != null || userDoc == null) return;
@@ -144,24 +148,63 @@ public class MainActivity extends AppCompatActivity {
                     adapter.notifyDataSetChanged(); // Refresh favorites only
                 });
 
-        // Listen to recipes collection
+        // get all recipes from recipes collection
         db.collection("recipes")
                 .addSnapshotListener((querySnapshot, ex) -> {
                     if (ex != null || querySnapshot == null) return;
 
-                    recipes.clear(); // Clear old recipes before re-adding
+                    // list one by one using recycler
+                    List<RecipeModel> newRecipes = new ArrayList<>();
                     for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
-                        Log.d("[Firestore] RecipeList: Read", "Recieved recipe: " + doc.getId());
                         RecipeModel recipeModel = doc.toObject(RecipeModel.class);
+                        if (recipeModel == null) continue;
                         recipeModel.setId(doc.getId());
-
-                        // check if recipe is saved
                         recipeModel.setFavorite(savedRecipeIds.contains(doc.getId()));
+                        newRecipes.add(recipeModel);
+                    }
 
-                        recipes.add(recipeModel);
-                        adapter.notifyItemInserted(recipes.size());
+                    // handle deletions in main menu UI
+                    for (int i = recipes.size() - 1; i >= 0; i--) {
+                        RecipeModel oldItem = recipes.get(i);
+                        boolean exists = false;
+                        for (RecipeModel newItem : newRecipes) {
+                            if (oldItem.getId().equals(newItem.getId())) {
+                                exists = true;
+                                break;
+                            }
+                        }
+                        if (!exists) {
+                            recipes.remove(i);
+                            adapter.notifyItemRemoved(i);
+                        }
+                    }
+
+                    // handle addition and updates in main menu UI
+                    for (int i = 0; i < newRecipes.size(); i++) {
+                        RecipeModel newItem = newRecipes.get(i);
+                        boolean found = false;
+                        for (int j = 0; j < recipes.size(); j++) {
+                            RecipeModel oldItem = recipes.get(j);
+                            if (newItem.getId().equals(oldItem.getId())) {
+
+                                // only update existing if something was changed
+                                if (!newItem.equals(oldItem)) {
+                                    recipes.set(j, newItem);
+                                    adapter.notifyItemChanged(j);
+                                }
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) {
+
+                            // add new recipe to the main menu UI
+                            recipes.add(i, newItem);
+                            adapter.notifyItemInserted(i);
+                        }
                     }
                 });
+
     }
 
     private final ActivityResultLauncher<Intent> recipeDetailsLauncher = registerForActivityResult(
