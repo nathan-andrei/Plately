@@ -64,14 +64,47 @@ public class CameraActivity extends AppCompatActivity {
         captureBtn = findViewById(R.id.Camera_Capture_Btn);
         preview = findViewById(R.id.Camera_Preview);
 
-        startCamera();
-
         // Apply Window Insets (Safety for system bars)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.layoutMainCamera), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0);
             return insets;
         });
+
+        //Permission helper
+        //Permission for camera
+        ActivityResultLauncher<String> requestPermissionLauncher = registerForActivityResult(
+                new ActivityResultContracts.RequestPermission(),
+                result -> {
+                    if (result) { //If permission was granted
+
+                    }
+                    else{
+                        Toast.makeText(CameraActivity.this, "Camera needs proper permissions!", Toast.LENGTH_LONG).show();
+                        //Immediately return
+                        Intent resultIntent = new Intent();
+                        setResult(RESULT_CANCELED, resultIntent);
+                        finish();
+                    }
+                }
+        );
+
+        //Check for permissions
+        //Check for camera permission
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED){
+            Log.d("[Camera] Permissions", "Asking for camera perms");
+            requestPermissionLauncher.launch(Manifest.permission.CAMERA);
+           // requestPermissions(new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 100); //100 request code is arbitrary
+        }
+        //check for write permissions
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+            Log.d("[Camera] Permissions", "Asking for write ext  perms");
+            //COMMENTED OUT, THE PERM LAUNCHER WASN'T PLAYING NICE
+            //TURNS OUT, NOT REQUIRED??
+            //requestPermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE); //100 request code is arbitrary
+        }
+
+        startCamera();
     }
 
     //Could not figure out error with preview.getSurfaceProvided, so just suppressed it
@@ -123,7 +156,7 @@ public class CameraActivity extends AppCompatActivity {
     }
 
     public void takePicture(ImageCapture imageCapture) {
-        final File file = new File(getExternalFilesDir(null), System.currentTimeMillis() + ".jpg");
+        final File file = new File(getFilesDir(), System.currentTimeMillis() + ".jpg");
         ImageCapture.OutputFileOptions outputFileOptions = new ImageCapture.OutputFileOptions.Builder(file).build();
 
         imageCapture.takePicture(outputFileOptions, Executors.newCachedThreadPool(), new ImageCapture.OnImageSavedCallback() {
@@ -132,6 +165,9 @@ public class CameraActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        //DO NOT TRUST THE GET PATH()
+                        //Using getFilesDir(), the path is data/data/com.example.plately/files/~
+
                         Toast.makeText(CameraActivity.this, "Image saved at: " + file.getPath(), Toast.LENGTH_SHORT).show();
                         Log.d("[Camera] Camera: Write", "Image saved at: " + file.getPath() );
                         Intent resultIntent = new Intent();
@@ -151,7 +187,7 @@ public class CameraActivity extends AppCompatActivity {
                         Toast.makeText(CameraActivity.this, "Failed to save: " + exception.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
-                startCamera();
+                //startCamera();
             }
         });
     }

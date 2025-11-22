@@ -4,7 +4,16 @@
 
     <item
         android:id="@+id/Profile_Edit_Photo"
-        android:title="Edit Profile Photo" />
+        android:title="Edit Profile Photo" >
+        <menu >
+            <item
+                android:id="@+id/Profile_Edit_Camera"
+                android:title="Take picture" />
+            <item
+                android:id="@+id/Profile_Edit_Gallery"
+                android:title="Choose from gallery" />
+        </menu>
+    </item>
     <item
         android:id="@+id/Profile_Edit_Name"
         android:title="Edit user name" />

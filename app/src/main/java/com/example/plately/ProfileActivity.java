@@ -195,6 +195,7 @@ public class ProfileActivity extends AppCompatActivity {
      * */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        /*
         if(item.getItemId() == R.id.Profile_Edit_Photo){
             //Check if we don't have permissions to use camera and write to storage. (maybe move to seperate function)
             //If so, request permissions
@@ -206,14 +207,7 @@ public class ProfileActivity extends AppCompatActivity {
             }
             //User DOES have camera permissions.
             else{
-                ciw.setOnCropImageCompleteListener(new CropImageView.OnCropImageCompleteListener() {
-                    @Override
-                    public void onCropImageComplete(@NonNull CropImageView cropImageView, @NonNull CropImageView.CropResult cropResult) {
-                        ciw.getCroppedImage();
-                    }
-                });
-                Intent intent = new Intent(ProfileActivity.this, CameraActivity.class);
-                cameraLauncher.launch(intent); //Retrieve the info from the intentLauncher
+
             }
 
             //Check if user allows access to storage (gallery)
@@ -221,6 +215,24 @@ public class ProfileActivity extends AppCompatActivity {
                 //Request only for the write perms
                 requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 100); //100 request code is arbitrary
             }
+            return true;
+        }*/
+        if(item.getItemId() == R.id.Profile_Edit_Camera){
+            //This image cropper lets you crop your selected image.
+            //Idk how to make this work...
+            ciw.setOnCropImageCompleteListener(new CropImageView.OnCropImageCompleteListener() {
+                @Override
+                public void onCropImageComplete(@NonNull CropImageView cropImageView, @NonNull CropImageView.CropResult cropResult) {
+                    ciw.getCroppedImage();
+                }
+            });
+            Intent intent = new Intent(ProfileActivity.this, CameraActivity.class);
+            cameraLauncher.launch(intent); //Retrieve the info from the intentLauncher
+            return true;
+        }
+        else if(item.getItemId() == R.id.Profile_Edit_Gallery){
+            //Retrieve an image from the gallery
+            //TODO: make the code
             return true;
         }
         else if(item.getItemId() == R.id.Profile_Edit_Name){
