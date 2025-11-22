@@ -6,6 +6,9 @@ import android.view.View;
 import android.widget.PopupMenu;
 import android.widget.Toast;
 
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.graphics.Insets;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -79,7 +82,7 @@ public class RecipeDetailsActivity extends AppCompatActivity {
                     applyAuthorVisibility(authorId, currentUid);
 
                     //update info here
-                    sendFavoriteResult();
+                    //sendFavoriteResult();
                  })
                   .addOnFailureListener(e -> {
                     Toast.makeText(this, "Failed loading recipe", Toast.LENGTH_SHORT).show();
