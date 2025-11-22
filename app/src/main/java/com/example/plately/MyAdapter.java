@@ -14,7 +14,7 @@ import java.util.ArrayList;
 
 public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
 
-    private final ArrayList<RecipeModel> recipes;
+    private ArrayList<RecipeModel> recipes;
     private OnRecipeFavoriteListener favoriteListener;
 
     public interface OnRecipeClickListener {
@@ -72,5 +72,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
     public interface OnRecipeFavoriteListener {
         void onFavoriteClick(String recipeId, boolean newState);
     }
+    
+    public void setRecipes(ArrayList<RecipeModel> list){ this.recipes = list;}
 
 }
