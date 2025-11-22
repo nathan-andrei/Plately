@@ -16,7 +16,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.plately.databinding.ActivityRecipeDetailsBinding;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.WriteBatch;
 
 public class RecipeDetailsActivity extends AppCompatActivity {
 
@@ -169,15 +172,41 @@ public class RecipeDetailsActivity extends AppCompatActivity {
     private void deleteRecipe() {
         if (recipeId == null) return;
 
-        db.collection("recipes").document(recipeId)
-                .delete()
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(this, "Recipe deleted", Toast.LENGTH_SHORT).show();
-                    finish();
-                })
-                .addOnFailureListener(e ->
-                        Toast.makeText(this, "Failed to delete recipe", Toast.LENGTH_SHORT).show()
-                );
+        DocumentReference recipeRef = db.collection("recipes").document(recipeId);
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        String currentUid = FirebaseAuth.getInstance().getUid();
+
+        db.collection("users")
+                .whereArrayContains("savedRecipes", recipeRef)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    WriteBatch batch = db.batch();
+
+                    // delete the recipe from recipes
+                    batch.delete(recipeRef);
+
+                    // remove recipe from all users' savedRecipes
+                    for (DocumentSnapshot userDoc : querySnapshot.getDocuments()) {
+                        batch.update(userDoc.getReference(),
+                                "savedRecipes", FieldValue.arrayRemove(recipeRef));
+                    }
+
+                    // remove recipe from author's createdRecipes
+                    if (currentUid != null) {
+                        DocumentReference authorRef = db.collection("users").document(currentUid);
+                        batch.update(authorRef, "createdRecipes", FieldValue.arrayRemove(recipeRef));
+                    }
+
+                    // Commit batch
+                    batch.commit()
+                            .addOnSuccessListener(aVoid -> {
+                                Toast.makeText(this, "Recipe deleted", Toast.LENGTH_SHORT).show();
+                                finish(); // return to main
+                            })
+                            .addOnFailureListener(e ->
+                                    Toast.makeText(this, "Failed to delete recipe", Toast.LENGTH_SHORT).show()
+                            );
+                });
     }
 
     // author visibility for the favorite and view more buttons
