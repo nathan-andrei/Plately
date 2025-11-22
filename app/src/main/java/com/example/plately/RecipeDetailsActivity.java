@@ -2,31 +2,26 @@ package com.example.plately;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+
+import com.example.plately.databinding.ActivityRecipeDetailsBinding;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-
-import com.example.plately.databinding.ActivityRecipeDetailsBinding;
-import com.google.firebase.firestore.DocumentReference;
 
 public class RecipeDetailsActivity extends AppCompatActivity {
 
     private ActivityRecipeDetailsBinding binding;
-    private boolean isFavorite = false;
-
     private FirebaseFirestore db;
-    private FirebaseAuth dbAuth;
-
+    private FirebaseAuth auth;
     private String recipeId;
+    private boolean isFavorite = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,9 +32,14 @@ public class RecipeDetailsActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         db = FirebaseFirestore.getInstance();
-        dbAuth = FirebaseAuth.getInstance();
+        auth = FirebaseAuth.getInstance();
 
         recipeId = getIntent().getStringExtra("recipeId");
+        if (recipeId == null) {
+            Toast.makeText(this, "Recipe not found", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
 
         String title = getIntent().getStringExtra("title");
         if (title != null) {
@@ -51,19 +51,41 @@ public class RecipeDetailsActivity extends AppCompatActivity {
                 isFavorite ? R.drawable.baseline_bookmark_24 : R.drawable.outline_bookmark_24
         );
 
-        binding.imageBtnSaveRecipe.setOnClickListener(v -> {
-            isFavorite = !isFavorite;
+        binding.imageBtnSaveRecipe.setOnClickListener(v -> toggleFavorite());
 
-            if (isFavorite) {
-                binding.imageBtnSaveRecipe.setImageResource(R.drawable.baseline_bookmark_24);
-                saveRecipeToSaved();
-            } else {
-                binding.imageBtnSaveRecipe.setImageResource(R.drawable.outline_bookmark_24);
-                removeRecipeFromSaved();
-            }
+        binding.imageBtnViewMore.setOnClickListener(v -> showOptionsMenu());
 
-            sendFavoriteResult();
-        });
+        // get the recipe from main menu then update the UI (wip)
+        db.collection("recipes").document(recipeId)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    if (!snapshot.exists()) {
+                        Toast.makeText(this, "Recipe not found", Toast.LENGTH_SHORT).show();
+                        finish();
+                        return;
+                    }
+
+                    RecipeModel recipe = snapshot.toObject(RecipeModel.class);
+
+                    if (recipe == null) {
+                        Toast.makeText(this, "Error loading recipe", Toast.LENGTH_SHORT).show();
+                        finish();
+                        return;
+                    }
+
+                    String authorId = recipe.getAuthor().get("uid").getId();
+                    String currentUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+                    applyAuthorVisibility(authorId, currentUid);
+
+                    //update info here
+                    sendFavoriteResult();
+                 })
+                  .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Failed loading recipe", Toast.LENGTH_SHORT).show();
+                    finish();
+               });
+        
 
         // Apply Window Insets (Safety for system bars)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.layoutMainRecipeDetails), (v, insets) -> {
@@ -73,44 +95,100 @@ public class RecipeDetailsActivity extends AppCompatActivity {
         });
     }
 
-    private void sendFavoriteResult() {
-        if (recipeId == null) return;
+    // handle favorite button actions
+    private void toggleFavorite() {
+        isFavorite = !isFavorite;
 
+        binding.imageBtnSaveRecipe.setImageResource(
+                isFavorite ? R.drawable.baseline_bookmark_24 : R.drawable.outline_bookmark_24
+        );
+
+        String uid = auth.getUid();
+        if (uid == null) return;
+
+        DocumentReference recipeRef = db.collection("recipes").document(recipeId);
+
+        if (isFavorite) {
+            db.collection("users").document(uid)
+                    .update("savedRecipes", com.google.firebase.firestore.FieldValue.arrayUnion(recipeRef))
+                    .addOnSuccessListener(aVoid -> Toast.makeText(this, "Saved!", Toast.LENGTH_SHORT).show())
+                    .addOnFailureListener(e -> Toast.makeText(this, "Failed to save", Toast.LENGTH_SHORT).show());
+        } else {
+            db.collection("users").document(uid)
+                    .update("savedRecipes", com.google.firebase.firestore.FieldValue.arrayRemove(recipeRef))
+                    .addOnSuccessListener(aVoid -> Toast.makeText(this, "Removed!", Toast.LENGTH_SHORT).show())
+                    .addOnFailureListener(e -> Toast.makeText(this, "Failed to remove", Toast.LENGTH_SHORT).show());
+        }
+
+        // send result back to main menu for consistency
         Intent resultIntent = new Intent();
         resultIntent.putExtra("recipeId", recipeId);
         resultIntent.putExtra("isFavorite", isFavorite);
         setResult(RESULT_OK, resultIntent);
     }
 
-    private void saveRecipeToSaved() {
-        String uid = dbAuth.getUid();
-        if (uid == null || recipeId == null) return;
-
-        DocumentReference recipeRef = db.collection("recipes").document(recipeId);
-
-        db.collection("users")
-                .document(uid)
-                .update("savedRecipes", com.google.firebase.firestore.FieldValue.arrayUnion(recipeRef))
-                .addOnSuccessListener(aVoid ->
-                        Toast.makeText(this, "Saved!", Toast.LENGTH_SHORT).show())
-                .addOnFailureListener(e ->
-                        Toast.makeText(this, "Failed to save", Toast.LENGTH_SHORT).show());
+    // show options once view more button is clicked
+    private void showOptionsMenu() {
+        PopupMenu popup = new PopupMenu(this, binding.imageBtnViewMore);
+        popup.getMenuInflater().inflate(R.menu.menu_recipe_options, popup.getMenu());
+        popup.setOnMenuItemClickListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.menu_edit_recipe) {
+                openEditRecipe();
+                return true;
+            } else if (id == R.id.menu_delete_recipe) {
+                confirmDelete();
+                return true;
+            }
+            return false;
+        });
+        popup.show();
     }
 
-    private void removeRecipeFromSaved() {
-        String uid = dbAuth.getUid();
-        if (uid == null || recipeId == null) return;
-
-        DocumentReference recipeRef = db.collection("recipes").document(recipeId);
-
-        db.collection("users")
-                .document(uid)
-                .update("savedRecipes", com.google.firebase.firestore.FieldValue.arrayRemove(recipeRef))
-                .addOnSuccessListener(aVoid ->
-                        Toast.makeText(this, "Removed!", Toast.LENGTH_SHORT).show())
-                .addOnFailureListener(e ->
-                        Toast.makeText(this, "Failed to remove", Toast.LENGTH_SHORT).show());
+    // launch edit recipe if user wants to edit
+    private void openEditRecipe() {
+        Intent intent = new Intent(this, EditRecipeActivity.class);
+        intent.putExtra("recipeId", recipeId);
+        startActivity(intent);
     }
+
+    // show alert before deletion
+    private void confirmDelete() {
+        new AlertDialog.Builder(this)
+                .setTitle("Delete Recipe")
+                .setMessage("Are you sure you want to delete this recipe?")
+                .setPositiveButton("Delete", (dialog, which) -> deleteRecipe())
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    // handle delete functionality by deleting it from db o7
+    private void deleteRecipe() {
+        if (recipeId == null) return;
+
+        db.collection("recipes").document(recipeId)
+                .delete()
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(this, "Recipe deleted", Toast.LENGTH_SHORT).show();
+                    finish();
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Failed to delete recipe", Toast.LENGTH_SHORT).show()
+                );
+    }
+
+    // author visibility for the favorite and view more buttons
+    private void applyAuthorVisibility(String authorId, String currentUid) {
+
+        if (currentUid != null && currentUid.equals(authorId)) {
+            // case 1: user is author of recipe
+            binding.imageBtnSaveRecipe.setVisibility(View.GONE);      // hide favorite button
+            binding.imageBtnViewMore.setVisibility(View.VISIBLE);     // show view more button - allow edit/delete
+        } else {
+            // case 2: user is not the author of the recipe
+            binding.imageBtnSaveRecipe.setVisibility(View.VISIBLE);   // show favorite button
+            binding.imageBtnViewMore.setVisibility(View.GONE);        // hide view more button
+        }
+    }
+
 }
-
-
