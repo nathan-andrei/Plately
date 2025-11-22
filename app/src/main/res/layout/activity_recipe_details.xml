@@ -11,7 +11,8 @@
         android:id="@+id/headerToolbar"
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:background="#D32F2F" android:orientation="horizontal"
+        android:background="#D32F2F"
+        android:orientation="horizontal"
         android:gravity="center_vertical">
 
         <TextView
@@ -34,12 +35,23 @@
             android:tint="#FFFFFF" />
 
         <ImageButton
+            android:id="@+id/imageBtnViewMore"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="View more"
+            android:src="@drawable/baseline_more_vert_24"
+            android:tint="#FFFFFF" />
+
+        <ImageButton
             android:id="@+id/imageBtnRecipeOptions"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
             android:background="@android:color/transparent"
             android:contentDescription="View more"
+            android:visibility="gone"
             android:src="@drawable/baseline_more_vert_24" />
 
     </LinearLayout>

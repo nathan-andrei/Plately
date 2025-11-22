@@ -27,13 +27,6 @@ public class MyViewHolder extends RecyclerView.ViewHolder {
         binding.textViewRecipeAuthorPrev.setText(recipe.getSource());
         binding.textViewDescriptionPrev.setText(recipe.getRecipeDescription());
 
-        // image loading using glide
-        /*Glide.with(binding.imageViewFood.getContext())
-                .load(recipe.getImageUrl())
-                .placeholder(R.drawable.ramen_photo)
-                .into(binding.imageViewFood);
-        */
-
         // initial state of icon
         binding.buttonFavorite.setImageResource(
                 recipe.isFavorite()
