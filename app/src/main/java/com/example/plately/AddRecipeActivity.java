@@ -134,23 +134,6 @@ public class AddRecipeActivity extends AppCompatActivity {
         );
     }
 
-
-    /*private void uploadImageAndSave(String title, String source, String ingredients,
-                                    String instructions, String notes, double serves,
-                                    double prep, double cook) {
-
-        String currentUserId = dbAuth.getCurrentUser().getUid();
-        StorageReference imageRef = storageRef.child(currentUserId + "_" + System.currentTimeMillis() + ".jpg");
-
-        imageRef.putFile(selectedImageUri)
-                .addOnSuccessListener(task -> imageRef.getDownloadUrl().addOnSuccessListener(url -> {
-                    saveRecipeToFirestore(title, source, ingredients, instructions, notes,
-                            serves, prep, cook, url.toString());
-                }))
-                .addOnFailureListener(e ->
-                        Toast.makeText(this, "Image upload failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
-    }*/
-
     private void saveRecipeToFirestore(String recipeName, String source,
                                        List<String> ingredients, List<String> steps, String recipeDescription,
                                        double servesPax, double prepTime, double cookTime, List<String> tags) {
@@ -212,7 +195,7 @@ public class AddRecipeActivity extends AppCompatActivity {
         }
     }
 
-    //
+    // show tag popup
     private void showTagDialog() {
         if (tagList.isEmpty()) {
             Toast.makeText(this, "No tags available", Toast.LENGTH_SHORT).show();
