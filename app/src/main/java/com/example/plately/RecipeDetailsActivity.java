@@ -1,12 +1,16 @@
 package com.example.plately;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.graphics.Insets;
@@ -310,6 +314,13 @@ public class RecipeDetailsActivity extends AppCompatActivity {
                     })
                     .addOnFailureListener(e -> binding.textViewAuthor.setText("By: Unknown"));
         }
+
+        // camera activity for reviews
+        binding.imageBtnAddPhotoReview.setOnClickListener(v -> {
+            // Launch camera activity
+            Intent intent = new Intent(RecipeDetailsActivity.this, CameraActivity.class);
+            reviewCameraLauncher.launch(intent);
+        });
     }
 
     // submit and add review to db
@@ -388,5 +399,19 @@ public class RecipeDetailsActivity extends AppCompatActivity {
                 );
     }
 
+    // camera launcher
+    private final ActivityResultLauncher<Intent> reviewCameraLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    Intent data = result.getData();
+                    if (data != null) {
+                        Uri imageUri = Uri.parse(data.getStringExtra("URI_KEY"));
+                        // Do something with the URI, e.g., display in an ImageView or attach to review
+                        Toast.makeText(this, "Photo selected: " + imageUri, Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+    );
 
 }
