@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.PopupMenu;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.core.view.ViewCompat;
@@ -16,7 +17,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.plately.databinding.ActivityRecipeDetailsBinding;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.WriteBatch;
+
+import java.util.ArrayList;
 
 public class RecipeDetailsActivity extends AppCompatActivity {
 
@@ -81,6 +87,7 @@ public class RecipeDetailsActivity extends AppCompatActivity {
 
                     applyAuthorVisibility(authorId, currentUid);
 
+                    displayRecipeDetails(recipe);
                     //update info here
                     //sendFavoriteResult();
                  })
@@ -169,15 +176,41 @@ public class RecipeDetailsActivity extends AppCompatActivity {
     private void deleteRecipe() {
         if (recipeId == null) return;
 
-        db.collection("recipes").document(recipeId)
-                .delete()
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(this, "Recipe deleted", Toast.LENGTH_SHORT).show();
-                    finish();
-                })
-                .addOnFailureListener(e ->
-                        Toast.makeText(this, "Failed to delete recipe", Toast.LENGTH_SHORT).show()
-                );
+        DocumentReference recipeRef = db.collection("recipes").document(recipeId);
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        String currentUid = FirebaseAuth.getInstance().getUid();
+
+        db.collection("users")
+                .whereArrayContains("savedRecipes", recipeRef)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    WriteBatch batch = db.batch();
+
+                    // delete the recipe from recipes
+                    batch.delete(recipeRef);
+
+                    // remove recipe from all users' savedRecipes
+                    for (DocumentSnapshot userDoc : querySnapshot.getDocuments()) {
+                        batch.update(userDoc.getReference(),
+                                "savedRecipes", FieldValue.arrayRemove(recipeRef));
+                    }
+
+                    // remove recipe from author's createdRecipes
+                    if (currentUid != null) {
+                        DocumentReference authorRef = db.collection("users").document(currentUid);
+                        batch.update(authorRef, "createdRecipes", FieldValue.arrayRemove(recipeRef));
+                    }
+
+                    // Commit batch
+                    batch.commit()
+                            .addOnSuccessListener(aVoid -> {
+                                Toast.makeText(this, "Recipe deleted", Toast.LENGTH_SHORT).show();
+                                finish(); // return to main
+                            })
+                            .addOnFailureListener(e ->
+                                    Toast.makeText(this, "Failed to delete recipe", Toast.LENGTH_SHORT).show()
+                            );
+                });
     }
 
     // author visibility for the favorite and view more buttons
@@ -193,5 +226,79 @@ public class RecipeDetailsActivity extends AppCompatActivity {
             binding.imageBtnViewMore.setVisibility(View.GONE);        // hide view more button
         }
     }
+
+    private void displayRecipeDetails(RecipeModel recipe) {
+        // recipe name
+        binding.textViewRecipeName.setText(recipe.getRecipeName() != null ? recipe.getRecipeName() : "Untitled");
+
+        // description
+        binding.textViewFullDescription.setText(recipe.getRecipeDescription() != null ? recipe.getRecipeDescription() : "No description available");
+
+        // num servings
+        binding.textViewServings.setText("Servings: " + (int) recipe.getServesPax());
+
+        // prep & cook time
+        binding.textViewPrepTime.setText("Prep time: " + (int) recipe.getPrepTime() + " min");
+        binding.textViewCookingTime.setText("Cooking time: " + (int) recipe.getCookTime() + " min");
+        binding.textViewTotalTime.setText("Total time: " + (int)(recipe.getPrepTime() + recipe.getCookTime()) + " min");
+
+        // tags
+        if (recipe.getTags() != null && !recipe.getTags().isEmpty()) {
+            binding.textViewTagsList.setText(String.join(", ", recipe.getTags()));
+        } else {
+            binding.textViewTagsList.setText("No tags");
+        }
+
+        // ingredients
+        binding.ingredientsContainer.removeAllViews();
+        if (recipe.getIngredients() != null) {
+            for (String ingredient : recipe.getIngredients()) {
+                TextView tv = new TextView(this);
+                tv.setText("• " + ingredient);
+                tv.setTextSize(16f);
+                tv.setPadding(0, 0, 0, 8);
+                binding.ingredientsContainer.addView(tv);
+            }
+        }
+
+        // steps
+        binding.stepsContainer.removeAllViews();
+        if (recipe.getSteps() != null && !recipe.getSteps().isEmpty()) {
+            int stepNumber = 1;
+            for (String step : recipe.getSteps()) {
+                TextView tv = new TextView(this);
+                tv.setText(stepNumber + ". " + step);
+                tv.setTextSize(16f);
+                tv.setPadding(0, 0, 0, 8);
+                binding.stepsContainer.addView(tv);
+                stepNumber++;
+            }
+        } else if (recipe.getInstructions() != null) {
+            String[] stepsArr = recipe.getInstructions().split("\\r?\\n");
+            int stepNumber = 1;
+            for (String step : stepsArr) {
+                TextView tv = new TextView(this);
+                tv.setText(stepNumber + ". " + step);
+                tv.setTextSize(16f);
+                tv.setPadding(0, 0, 0, 8);
+                binding.stepsContainer.addView(tv);
+                stepNumber++;
+            }
+        }
+
+        // source
+        binding.textViewSource.setText(recipe.getSource() != null ? recipe.getSource() : "No source available");
+
+        // recipe author
+        if (recipe.getAuthor() != null && recipe.getAuthor().get("uid") != null) {
+            recipe.getAuthor().get("uid").get()
+                    .addOnSuccessListener(docSnap -> {
+                        String username = docSnap.getString("username");
+                        binding.textViewAuthor.setText("By: " + (username != null ? username : "Unknown"));
+                    })
+                    .addOnFailureListener(e -> binding.textViewAuthor.setText("By: Unknown"));
+        }
+    }
+
 
 }

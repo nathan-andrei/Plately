@@ -22,12 +22,15 @@ public class RecipeModel {
     private boolean isFavorite = false;
     private HashMap<String, DocumentReference> author;
 
+    private ArrayList<String> steps;
+
     public RecipeModel() {
         id = null;
         recipeName = null;
         source = null;
         recipeDescription = null;
         ingredients = null;
+        steps = null;
         instructions = null;
         servesPax = 0.0;
         prepTime = 0.0;
@@ -44,6 +47,7 @@ public class RecipeModel {
         this.source = source;
         this.recipeDescription = recipeDescription;
         this.ingredients = ingredients;
+        this.steps = steps;
         this.instructions = instructions;
         this.servesPax = serves;
         this.prepTime = prepTime;
@@ -67,6 +71,8 @@ public class RecipeModel {
     public ArrayList<String> getTags() { return tags; }
     public boolean isFavorite() { return isFavorite; }
     public HashMap<String, DocumentReference> getAuthor() { return author; }
+    public ArrayList<String> getSteps() { return steps; }
+    public void setSteps(ArrayList<String> steps) { this.steps = steps; }
 
     // setters
     public void setFavorite(boolean favorite) { this.isFavorite = favorite; }
