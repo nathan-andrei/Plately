@@ -1,5 +1,7 @@
 package com.example.plately;
 
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.method.PasswordTransformationMethod;
@@ -48,8 +50,7 @@ public class LoginActivity extends AppCompatActivity {
     private EditText registerName, registerEmail, registerPassword;
     private Button registerBtn, registerBackBtn, showPasswordBtn;
     private boolean registerPasswordVisibility;
-
-
+    ProgressDialog progressDialog;
 
     /*
         Indices for the viewAnimator:
@@ -79,10 +80,24 @@ public class LoginActivity extends AppCompatActivity {
         
         //Initialize the listener for going straight to Main
         findViewById(R.id.Guest_btn).setOnClickListener(v -> {
-            Intent i = new Intent(this, MainActivity.class);
-            //Throw session data here
-            startActivity(i);
-            finish();
+            dbAuth.signInAnonymously()
+                    .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            if (task.isSuccessful()) {
+                                // Sign in success, update UI with the signed-in user's information
+                                Log.d("[Firestore] Guest Login", "signInAnonymously:success");
+                                Intent i = new Intent(LoginActivity.this, MainActivity.class);
+                                //Throw session data here
+                                startActivity(i);
+                                finish();
+                            } else {
+                                // If sign in fails, display a message to the user.
+                                Log.w("[Firestpre] Guest Login", "signInAnonymously:failure", task.getException());
+                            }
+                        }
+                    });
+
         });
     }
 
@@ -96,12 +111,18 @@ public class LoginActivity extends AppCompatActivity {
             String password = loginPassword.getText().toString().trim();
             Intent i = new Intent(this, MainActivity.class);
 
+            //Alert dialog to show operation process to user
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage("Please wait...");
+            AlertDialog dialog = builder.create();
+            dialog.show();
+
             //Log in
             dbAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     // Log in success
                     Log.d("[Firebase] Login", "signInWithEmailAndPassword:success");
-
+                    dialog.dismiss();
                     //Throw session data here
                     startActivity(i);
                     finish();
@@ -111,6 +132,7 @@ public class LoginActivity extends AppCompatActivity {
                     //Actually find out the error
                         // Account error
                         // server error
+                    dialog.dismiss();
                     Toast.makeText(LoginActivity.this, "Account or password error", Toast.LENGTH_SHORT).show();
                 }
             });
@@ -153,6 +175,12 @@ public class LoginActivity extends AppCompatActivity {
 
             UserModel newUser = new UserModel(displayName, email, password);
 
+            //Alert dialog to show operation process to user
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage("Please wait...");
+            AlertDialog dialog = builder.create();
+            dialog.show();
+
             dbAuth.createUserWithEmailAndPassword(newUser.getEmail(), newUser.getPassword())
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
@@ -175,11 +203,13 @@ public class LoginActivity extends AppCompatActivity {
                                         .document(uid)
                                         .set(userMap)
                                         .addOnSuccessListener(aVoid -> {
+                                            dialog.dismiss();
                                             Log.d("[Firebase] Register", "User successfully added to Firestore!");
                                             Toast.makeText(LoginActivity.this, "Registered Successfully!", Toast.LENGTH_SHORT).show();
                                             viewAnimator.setDisplayedChild(0);
                                         })
                                         .addOnFailureListener(e -> {
+                                            dialog.dismiss();
                                             Log.e("[Firebase] Register", "Failed to add user to Firestore!", e);
                                             Toast.makeText(LoginActivity.this, "Failed to register! Please try again", Toast.LENGTH_SHORT).show();
                                         });
@@ -187,6 +217,7 @@ public class LoginActivity extends AppCompatActivity {
                         } else {
                             Exception e = task.getException();
                             if (e != null) {
+                                dialog.dismiss();
                                 Log.e("[Firebase] Register", "createUserWithEmail:failure", e);
                                 Toast.makeText(LoginActivity.this, "Registration failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
                             }
@@ -221,7 +252,9 @@ public class LoginActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
 
         //Skip this screen if user is logged in.
-        if(FirebaseController.getInstance().isLoggedIn()){
+        //Secondary check if they were redirected from main as a prompt to login. This check is to see if they were NOT anonymous,
+        //since if they were, we should not let them stay.
+        if(FirebaseController.getInstance().isLoggedIn() && !getIntent().getBooleanExtra("WAS_ANONYMOUS", false)){
             Intent i = new Intent(this, MainActivity.class);
             //Throw session data here
             startActivity(i);

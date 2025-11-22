@@ -10,11 +10,15 @@ import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -77,8 +81,41 @@ public class MainActivity extends AppCompatActivity {
         });
 
         binding.buttonProfile.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
-            startActivity(intent);
+            String uid = auth.getCurrentUser().getUid();
+            if (uid == null) return;
+
+            Log.d("[Firestore] Profile: Access", "profile pressed");
+            Log.d("[Firestore] Profile: Access", "Current UID:" + uid);
+            //Get the current uid from auth, and check if it exists in the db
+            //If it doesn't, then the user is anonymous.
+            db.collection("users")
+                    .document(uid).get().addOnCompleteListener(this, task -> {
+                        if(task.isSuccessful() && task.getResult().exists()){
+                            DocumentSnapshot doc = task.getResult();
+                                Log.d("[Firestore] Profile: Access", "profile retrieved");
+                                Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
+                                startActivity(intent);
+                        }
+                        else{
+                            //While we do not boot the user back to login if they come back as an anonymous user
+                            //They must login when accessing features that need authentication
+                            Log.d("[Firestore] Profile: Access", "no profile found");
+                            Toast.makeText(MainActivity.this, "Please login first!", Toast.LENGTH_SHORT).show();
+                            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                            intent.putExtra("WAS_ANONYMOUS", true);
+                            startActivity(intent);
+                            finish();
+                        }
+                    });
+
+            /*
+            if(auth != null && auth.getCurrentUser() != null) {
+                Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
+                startActivity(intent);
+            }
+            else{
+                Toast.makeText(MainActivity.this, "Please login first!", Toast.LENGTH_SHORT).show();
+            }*/
         });
 
         binding.buttonFilter.setOnClickListener(v ->
