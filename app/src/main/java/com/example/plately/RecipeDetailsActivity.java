@@ -79,13 +79,20 @@ public class RecipeDetailsActivity extends AppCompatActivity {
                     applyAuthorVisibility(authorId, currentUid);
 
                     //update info here
-                })
-                .addOnFailureListener(e -> {
+                    sendFavoriteResult();
+                 })
+                  .addOnFailureListener(e -> {
                     Toast.makeText(this, "Failed loading recipe", Toast.LENGTH_SHORT).show();
                     finish();
-                });
+               });
+        
 
-
+        // Apply Window Insets (Safety for system bars)
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.layoutMainRecipeDetails), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
     }
 
     // handle favorite button actions

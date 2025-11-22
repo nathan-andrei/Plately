@@ -5,5 +5,21 @@
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
     </style>
 
+    <style name="Profile" parent="@style/Theme.AppCompat.Light">
+        <item name="actionBarStyle">@style/ProfileActionBar</item>
+    </style>
+
+    <style name="ProfileActionBar" parent="@style/Theme.AppCompat.Light">
+        <item name="background">@color/platelyRed</item>
+        <item name="textFillColor">@color/white</item>
+        <item name="android:textColorPrimary">@color/white</item>
+        <item name="colorPrimary">@color/white</item>
+        <item name="android:titleTextStyle">@style/ProfileActionBarText</item>
+    </style>
+
+    <style name="ProfileActionBarText" parent="@style/Theme.AppCompat.Light">
+        <item name="android:textColor">@color/white</item>
+    </style>
+
     <style name="Theme.Plately" parent="Base.Theme.Plately" />
 </resources>
