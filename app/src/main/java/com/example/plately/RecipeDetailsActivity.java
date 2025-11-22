@@ -382,21 +382,18 @@ public class RecipeDetailsActivity extends AppCompatActivity {
 
         DocumentReference recipeRef = db.collection("recipes").document(recipeId);
 
-        // loads review of selected recipe
         db.collection("reviews")
                 .whereEqualTo("recipeRef", recipeRef)
-                .get()
-                .addOnSuccessListener(querySnapshot -> {
+                .addSnapshotListener((querySnapshot, error) -> {
+                    if (error != null || querySnapshot == null) return;
+
                     reviewList.clear();
                     for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
                         ReviewModel review = doc.toObject(ReviewModel.class);
                         if (review != null) reviewList.add(review);
                     }
                     reviewAdapter.notifyDataSetChanged();
-                })
-                .addOnFailureListener(e ->
-                        Toast.makeText(this, "Failed to load reviews", Toast.LENGTH_SHORT).show()
-                );
+                });
     }
 
     // camera launcher
