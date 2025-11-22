@@ -1,18 +1,23 @@
 package com.example.plately;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.graphics.Insets;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.plately.databinding.ActivityRecipeDetailsBinding;
 import com.google.firebase.auth.FirebaseAuth;
@@ -20,9 +25,13 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class RecipeDetailsActivity extends AppCompatActivity {
 
@@ -31,6 +40,8 @@ public class RecipeDetailsActivity extends AppCompatActivity {
     private FirebaseAuth auth;
     private String recipeId;
     private boolean isFavorite = false;
+    private List<ReviewModel> reviewList = new ArrayList<>();
+    private ReviewAdapter reviewAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +53,11 @@ public class RecipeDetailsActivity extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
+
+        setupRecyclerView();
+
+        // submit review button
+        binding.buttonSubmitReview.setOnClickListener(v -> submitReview());
 
         recipeId = getIntent().getStringExtra("recipeId");
         if (recipeId == null) {
@@ -63,6 +79,7 @@ public class RecipeDetailsActivity extends AppCompatActivity {
         binding.imageBtnSaveRecipe.setOnClickListener(v -> toggleFavorite());
 
         binding.imageBtnViewMore.setOnClickListener(v -> showOptionsMenu());
+
 
         // get the recipe from main menu then update the UI (wip)
         db.collection("recipes").document(recipeId)
@@ -88,8 +105,7 @@ public class RecipeDetailsActivity extends AppCompatActivity {
                     applyAuthorVisibility(authorId, currentUid);
 
                     displayRecipeDetails(recipe);
-                    //update info here
-                    //sendFavoriteResult();
+                    loadReviews();
                  })
                   .addOnFailureListener(e -> {
                     Toast.makeText(this, "Failed loading recipe", Toast.LENGTH_SHORT).show();
@@ -298,7 +314,104 @@ public class RecipeDetailsActivity extends AppCompatActivity {
                     })
                     .addOnFailureListener(e -> binding.textViewAuthor.setText("By: Unknown"));
         }
+
+        // camera activity for reviews
+        binding.imageBtnAddPhotoReview.setOnClickListener(v -> {
+            // Launch camera activity
+            Intent intent = new Intent(RecipeDetailsActivity.this, CameraActivity.class);
+            reviewCameraLauncher.launch(intent);
+        });
     }
 
+    // submit and add review to db
+    private void submitReview() {
+        String reviewText = binding.editTextReview.getText().toString().trim();
+        float rating = binding.ratingBarUser.getRating();
+
+        if (reviewText.isEmpty()) {
+            binding.editTextReview.setError("Review cannot be empty");
+            return;
+        }
+
+        String currentUserId = auth.getUid();
+        if (currentUserId == null) return;
+
+        // author reference
+        DocumentReference authorRef = db.collection("users").document(currentUserId);
+        Map<String, Object> authorMap = new HashMap<>();
+        authorMap.put("uid", authorRef);
+
+        // recipe reference
+        DocumentReference recipeRef = db.collection("recipes").document(recipeId);
+
+        // review map to be added
+        Map<String, Object> reviewMap = new HashMap<>();
+        reviewMap.put("author", authorMap);
+        reviewMap.put("rating", rating);
+        reviewMap.put("text", reviewText);
+        reviewMap.put("recipeRef", recipeRef);
+
+        // add review to reviews collection
+        db.collection("reviews").add(reviewMap)
+                .addOnSuccessListener(reviewDocRef -> {
+
+                    // add reviews to the recipe's review array
+                    recipeRef.update("reviews", FieldValue.arrayUnion(reviewDocRef))
+                            .addOnSuccessListener(aVoid -> {
+                                Toast.makeText(this, "Review added!", Toast.LENGTH_SHORT).show();
+
+                                // after adding reset the inputs
+                                binding.editTextReview.setText("");
+                                binding.ratingBarUser.setRating(0);
+                                loadReviews();
+                            });
+
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Failed to add review", Toast.LENGTH_SHORT).show());
+    }
+
+    private void setupRecyclerView() {
+        reviewAdapter = new ReviewAdapter(reviewList);
+        binding.recyclerViewReviews.setAdapter(reviewAdapter);
+        binding.recyclerViewReviews.setLayoutManager(new LinearLayoutManager(this));
+    }
+
+    private void loadReviews() {
+        if (recipeId == null) return;
+
+        DocumentReference recipeRef = db.collection("recipes").document(recipeId);
+
+        // loads review of selected recipe
+        db.collection("reviews")
+                .whereEqualTo("recipeRef", recipeRef)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    reviewList.clear();
+                    for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                        ReviewModel review = doc.toObject(ReviewModel.class);
+                        if (review != null) reviewList.add(review);
+                    }
+                    reviewAdapter.notifyDataSetChanged();
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Failed to load reviews", Toast.LENGTH_SHORT).show()
+                );
+    }
+
+    // camera launcher
+    private final ActivityResultLauncher<Intent> reviewCameraLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    Intent data = result.getData();
+                    if (data != null) {
+                        Uri imageUri = Uri.parse(data.getStringExtra("URI_KEY"));
+                        // Do something with the URI, e.g., display in an ImageView or attach to review
+                        Toast.makeText(this, "Photo selected: " + imageUri, Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+    );
 
 }

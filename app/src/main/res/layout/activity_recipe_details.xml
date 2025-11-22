@@ -285,15 +285,33 @@
                 android:textSize="20sp"
                 android:textStyle="bold" />
 
-            <RatingBar
-                android:id="@+id/ratingBarUser"
-                style="?android:attr/ratingBarStyle"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:numStars="5"
-                android:stepSize="1"
-                android:layout_marginTop="8dp"
-                />
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="8dp">
+
+                <RatingBar
+                    android:id="@+id/ratingBarUser"
+                    style="?android:attr/ratingBarStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:numStars="5"
+                    android:stepSize="1" />
+
+                <ImageButton
+                    android:id="@+id/imageBtnAddPhotoReview"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:background="@android:color/transparent"
+                    android:contentDescription="Add photo review"
+                    android:src="@drawable/baseline_camera_alt_24"
+                    android:tint="#D32F2F" />
+
+            </LinearLayout>
+
 
             <EditText
                 android:id="@+id/editTextReview"
@@ -324,25 +342,12 @@
                 android:textSize="20sp"
                 android:textStyle="bold" />
 
-            <LinearLayout
-                android:id="@+id/reviewsContainer"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerViewReviews"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginTop="8dp">
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textSize="16sp"
-                    android:text="User A (5 stars): Absolutely loved it! The spice was perfect."
-                    android:paddingBottom="8dp"/>
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textSize="16sp"
-                    android:text="User B (4 stars): Great recipe, but I cut the cooking time."
-                    android:paddingBottom="8dp"/>
-            </LinearLayout>
+                android:layout_marginTop="8dp"/>
+
 
         </LinearLayout>
     </ScrollView>
