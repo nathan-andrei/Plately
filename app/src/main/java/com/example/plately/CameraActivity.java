@@ -106,9 +106,8 @@ public class CameraActivity extends AppCompatActivity {
 
         startCamera();
     }
-
-    //Could not figure out error with preview.getSurfaceProvided, so just suppressed it
-    @SuppressLint("RestrictedApi")
+    
+    
     private void startCamera() {
         int aspectRatio = aspectRatio(preview.getWidth(), preview.getHeight());
         ListenableFuture<ProcessCameraProvider> listenableFuture = ProcessCameraProvider.getInstance(this);
@@ -147,7 +146,7 @@ public class CameraActivity extends AppCompatActivity {
                     }
                 });*/
 
-                preview.setSurfaceProvider(preview.getSurfaceProvider());
+                preview.setSurfaceProvider(this.preview.getSurfaceProvider());
             } catch (Exception e) {
                 e.printStackTrace();
             }

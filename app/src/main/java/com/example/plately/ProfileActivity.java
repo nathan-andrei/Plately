@@ -7,9 +7,11 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.provider.MediaStore;
 import android.text.Html;
 import android.util.Log;
 import android.view.Menu;
@@ -38,9 +40,13 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.auth.User;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import org.checkerframework.checker.units.qual.A;
 
+import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 
@@ -305,14 +311,36 @@ public class ProfileActivity extends AppCompatActivity {
         }
     }
 
+    //Launch the camera and get the uri for the captured image.
     private final ActivityResultLauncher<Intent> cameraLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
                 if (result.getResultCode() == Activity.RESULT_OK) {
                     Intent data = result.getData();
                     if (data != null) {
+                        Uri uri = Uri.parse(data.getStringExtra("URI_KEY"));
+                        //This is supposed to open the image cropper, not working!!
                         ciw.setVisibility(VISIBLE);
-                        ciw.setImageUriAsync(Uri.parse(data.getStringExtra("URI_KEY")));
+                        ciw.setImageUriAsync(uri);
+                        /*
+                        try {
+                            Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(),Uri.parse(data.getStringExtra("URI_KEY")));
+                            
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                        */
+                        StorageReference newPfpRef = FirebaseStorage.getInstance().getReference().child("users/" + dbAuth.getCurrentUser().getUid() + "/ProfilePicture.jpg");
+                        UploadTask uploadTask = newPfpRef.putFile(uri);
+                        
+                        uploadTask.addOnCompleteListener(this, task ->{
+                            if(task.isSuccessful()){
+                                 Log.d("[Firestore] Image Upload", "Sucessfully uploaded image yay");
+                            }
+                            else{
+                                Log.d("[Firestore] Image Upload", "Failed to upload image noo");
+                            }
+                        });
                     }
                 }
             }
