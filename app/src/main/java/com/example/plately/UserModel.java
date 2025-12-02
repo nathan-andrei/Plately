@@ -21,7 +21,7 @@ public class UserModel {
         createdRecipes = null;
         createdReviews = null;
         savedRecipes = null;
-        profilePicture = null;
+        profilePicture = "";
     }
 
     public UserModel(String name, String email, String password){
