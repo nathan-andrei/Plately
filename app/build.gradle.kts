@@ -67,4 +67,5 @@ dependencies {
     // https://firebase.google.com/docs/android/setup#available-libraries
     implementation("com.google.firebase:firebase-firestore:24.6.2")
     implementation("com.google.firebase:firebase-storage")
+    implementation ("com.github.bumptech.glide:glide:4.16.0")
 }

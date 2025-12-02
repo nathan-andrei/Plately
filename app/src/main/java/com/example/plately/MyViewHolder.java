@@ -1,11 +1,13 @@
 package com.example.plately;
 
 import android.content.Intent;
+import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.plately.databinding.RecipeListLayoutBinding;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
@@ -105,6 +107,16 @@ public class MyViewHolder extends RecyclerView.ViewHolder {
         binding.textViewDescriptionPrev.setText(
                 recipe.getRecipeDescription() != null ? recipe.getRecipeDescription() : ""
         );
+
+        // image
+        if (recipe.getRecipeImage() != null && !recipe.getRecipeImage().isEmpty()) {
+
+            Log.d("RecipeImage", "Loading image URL: " + recipe.getRecipeImage());
+
+            Glide.with(binding.imageViewFood.getContext())
+                    .load(recipe.getRecipeImage())
+                    .into(binding.imageViewFood);
+        }
 
         // tags up to 2 only
         if (recipe.getTags() != null && !recipe.getTags().isEmpty()) {
