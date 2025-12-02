@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -42,6 +43,8 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<RecipeModel> recipes;
     private FirebaseFirestore db;
     private FirebaseAuth auth;
+    private boolean tagsVisibility = false;
+    private ArrayList<String> tagFilter = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,11 +78,13 @@ public class MainActivity extends AppCompatActivity {
 
         getRecipesFromDb();
 
+        //Add recipes button
         binding.buttonAddRecipe.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, AddRecipeActivity.class);
             startActivity(intent);
         });
 
+        //Profile button
         binding.buttonProfile.setOnClickListener(v -> {
             String uid = auth.getCurrentUser().getUid();
             if (uid == null) return;
@@ -107,20 +112,53 @@ public class MainActivity extends AppCompatActivity {
                             finish();
                         }
                     });
-
-            /*
-            if(auth != null && auth.getCurrentUser() != null) {
-                Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
-                startActivity(intent);
-            }
-            else{
-                Toast.makeText(MainActivity.this, "Please login first!", Toast.LENGTH_SHORT).show();
-            }*/
         });
 
-        binding.buttonFilter.setOnClickListener(v ->
-                Toast.makeText(MainActivity.this, "Filter button clicked (Not yet implemented)", Toast.LENGTH_SHORT).show()
-        );
+        //Setup the recycler for the tags
+        binding.TagsRV.setLayoutManager(new LinearLayoutManager(this));
+        TagsAdapter tagsAdapter = new TagsAdapter(
+            (tagName,  state) -> {  // favorite listener to update favorite status
+            if (state){
+                //Remove from filter list
+                tagFilter.remove(tagName);
+            }
+            else{
+                tagFilter.add(tagName);
+            }
+        });
+        binding.TagsRV.setAdapter(tagsAdapter);
+        binding.TagsMenu.setVisibility(View.GONE); //HIDE THE TAGS
+        
+        //Filter
+        binding.buttonFilter.setOnClickListener(v -> {
+            if(tagsVisibility){ //if the tags are visible
+                binding.TagsMenu.setVisibility(View.GONE);
+            }
+            else{// if the tags are not viisble
+                binding.TagsMenu.setVisibility(View.VISIBLE);
+            }
+            
+            tagsVisibility = !tagsVisibility;
+            
+        });
+        
+        //Search button
+        binding.buttonSearch.setOnClickListener(v -> {
+            ArrayList<RecipeModel> filteredRecipes = new ArrayList<>();
+            String query = binding.editTextSearchBar.getText().toString().trim();
+            
+            for(RecipeModel recipe : recipes){
+                if(recipe.getRecipeName().toLowerCase().contains(query.toLowerCase())){
+                    filteredRecipes.add(recipe);
+                }
+            }
+            for(String tag : tagFilter){
+                Log.d("[ActivityList] TagFilter", "Found filter: " + tag);
+            }
+            adapter.setRecipes(filteredRecipes);
+            adapter.notifyDataSetChanged();
+        });
+        
         getOnBackPressedDispatcher().addCallback(this, callback);
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
