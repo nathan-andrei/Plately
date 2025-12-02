@@ -14,6 +14,7 @@ import android.text.Html;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -37,12 +38,18 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.auth.User;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import org.checkerframework.checker.units.qual.A;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ProfileActivity extends AppCompatActivity {
     // Widgets for Profile Activity
@@ -66,6 +73,7 @@ public class ProfileActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private FirebaseAuth dbAuth;
 
+    private FirebaseStorage storage;
     private void setUpCreatedRecipesRecyclerView(){
         //Check if the class variable for the RV is null
         if(createdRecipesRV == null) createdRecipesRV = findViewById(R.id.layoutMyRecipesContainer);
@@ -146,9 +154,9 @@ public class ProfileActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_profile);
 
-
         db = FirebaseFirestore.getInstance();
         dbAuth = FirebaseAuth.getInstance();
+        storage = FirebaseStorage.getInstance();
         ciw = findViewById(R.id.cropImageView);
 
         // --- Setup Methods ---
@@ -233,6 +241,7 @@ public class ProfileActivity extends AppCompatActivity {
         else if(item.getItemId() == R.id.Profile_Edit_Gallery){
             //Retrieve an image from the gallery
             //TODO: make the code
+            galleryLauncher.launch("image/*");
             return true;
         }
         else if(item.getItemId() == R.id.Profile_Edit_Name){
@@ -317,4 +326,57 @@ public class ProfileActivity extends AppCompatActivity {
                 }
             }
     );
+
+    // launch gallery
+    private final ActivityResultLauncher<String> galleryLauncher = registerForActivityResult(
+            new ActivityResultContracts.GetContent(),
+            uri -> {
+                if (uri != null) {
+                    uploadProfilePicture(uri);
+                }
+            }
+    );
+
+    // upload profile pic :D
+    private void uploadProfilePicture(Uri imageUri) {
+        // get uid
+        String uid = dbAuth.getCurrentUser().getUid();
+
+        // tas put here users/uid/profile.jpg
+        StorageReference storageRef = storage.getReference().child("users/" + uid + "/profile.jpg");
+
+        storageRef.putFile(imageUri)
+                .addOnSuccessListener(taskSnapshot -> {
+
+                    //get url then upate the document
+                    storageRef.getDownloadUrl().addOnSuccessListener(downloadUri -> {
+                        Map<String, Object> data = new HashMap<>();
+                        data.put("profilePicture", downloadUri.toString());
+
+                        db.collection("users").document(uid)
+                                .set(data, SetOptions.merge())
+                                .addOnSuccessListener(aVoid -> {
+                                    Toast.makeText(ProfileActivity.this, "Profile picture updated!", Toast.LENGTH_SHORT).show();
+
+                                    // update ui but it doesn't work
+                                    ciw.setVisibility(View.VISIBLE);
+                                    ciw.setImageUriAsync(downloadUri);
+                                })
+                                .addOnFailureListener(e -> {
+                                    Toast.makeText(ProfileActivity.this, "Failed to update Firestore", Toast.LENGTH_SHORT).show();
+                                    e.printStackTrace();
+                                });
+
+                    }).addOnFailureListener(e -> {
+                        Toast.makeText(ProfileActivity.this, "Failed to get download URL", Toast.LENGTH_SHORT).show();
+                        e.printStackTrace();
+                    });
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(ProfileActivity.this, "Failed to upload image", Toast.LENGTH_SHORT).show();
+                    e.printStackTrace();
+                });
+    }
+
+
 }
