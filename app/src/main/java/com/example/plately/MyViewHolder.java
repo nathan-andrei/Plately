@@ -1,5 +1,6 @@
 package com.example.plately;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.view.View;
 
@@ -16,6 +17,9 @@ import java.util.Objects;
 
 public class MyViewHolder extends RecyclerView.ViewHolder {
     private final RecipeListLayoutBinding binding;
+
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    //private FirebaseAuth auth;
 
     public MyViewHolder(@NonNull RecipeListLayoutBinding binding) {
         super(binding.getRoot());
@@ -60,6 +64,27 @@ public class MyViewHolder extends RecyclerView.ViewHolder {
                 clickListener.onRecipeClick(recipe);
             }
         });
+
+        DocumentReference recipeRef = db.collection("recipes").document(recipe.getId());
+
+        db.collection("reviews")
+                .whereEqualTo("recipeRef", recipeRef).get().addOnCompleteListener((Activity) binding.getRoot().getContext(), getReviewsTask ->{
+                    if(getReviewsTask.isSuccessful()){
+                        if(getReviewsTask.getResult().isEmpty()){
+                            binding.textViewRatingPrev.setText("0.0/5.0");
+                        }
+                        else{
+                            double sum  = 0.0;
+                            double total = 0;
+                            for(DocumentSnapshot review : getReviewsTask.getResult()){
+                                sum += review.getDouble("rating");
+                                total += 1;
+                            }
+                            String ratingText = String.format("%.1f", sum/total);
+                            binding.textViewRatingPrev.setText(ratingText+"/5.0");
+                        }
+                    }
+                });
     }
 
     //Modified function for recipe that doesn't have favourite buttons (User created/owns the recipe)
