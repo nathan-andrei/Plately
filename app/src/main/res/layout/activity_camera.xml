@@ -3,7 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/layoutMainCamera"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@android:color/transparent"
+    android:backgroundTint="#00FFFFFF">
 
     <androidx.camera.view.PreviewView
         android:id="@+id/Camera_Preview"
@@ -15,8 +17,24 @@
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:layout_marginBottom="32dp"
+        android:background="@drawable/rounded_quad_grey"
+        android:padding="32dp"
+        android:src="@drawable/baseline_camera_alt_24"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageButton
+        android:id="@+id/Camera_Back_Btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="32dp"
+        android:background="@null"
+        android:scaleX="2"
+        android:scaleY="2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_arrow_back_24" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
