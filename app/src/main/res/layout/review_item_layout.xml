@@ -7,33 +7,52 @@
     android:layout_marginBottom="12dp"
     android:background="@drawable/edit_text_border">
 
-    <!-- Username and Rating Row -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:layout_height="24dp"
+        android:layout_marginBottom="4dp"
         android:gravity="center_vertical"
-        android:layout_marginBottom="8dp">
-
-        <TextView
-            android:id="@+id/textViewReviewUsername"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:text="Username" />
+        android:orientation="horizontal">
 
         <RatingBar
             android:id="@+id/ratingBarReview"
             style="?android:attr/ratingBarStyleSmall"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="20dp"
             android:numStars="5"
-            android:stepSize="0.5"
+            android:max="5"
             android:isIndicator="true"
-            android:rating="0" />
+            android:rating="0"
+            android:stepSize="0.5"
+            android:scaleX="1"
+            android:scaleY="1" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <ImageButton
+            android:id="@+id/imageButtonReviewOptions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:contentDescription="Review options"
+            android:src="@drawable/baseline_more_vert_24"
+            android:tint="#959595" />
     </LinearLayout>
+
+
+
+    <!-- Username Row -->
+    <TextView
+        android:id="@+id/textViewReviewUsername"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp"
+        android:text="Username" />
 
     <!-- Review Text -->
     <TextView
@@ -54,26 +73,26 @@
 
         <ImageView
             android:id="@+id/imageViewReviewPhoto1"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:layout_marginEnd="4dp"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginEnd="8dp"
             android:scaleType="centerCrop"
             android:background="@android:color/darker_gray"
             android:contentDescription="Review photo 1" />
 
         <ImageView
             android:id="@+id/imageViewReviewPhoto2"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:layout_marginEnd="4dp"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginEnd="8dp"
             android:scaleType="centerCrop"
             android:background="@android:color/darker_gray"
             android:contentDescription="Review photo 2" />
 
         <ImageView
             android:id="@+id/imageViewReviewPhoto3"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
             android:scaleType="centerCrop"
             android:background="@android:color/darker_gray"
             android:contentDescription="Review photo 3" />
