@@ -120,28 +120,6 @@
                 android:orientation="vertical"
                 android:paddingBottom="16dp" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="8dp"
-                android:text="My Reviews"
-                android:textColor="#D32F2F"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/layoutMyReviewsContainer"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="#FAFAFA"
-                android:orientation="vertical"
-                android:paddingBottom="16dp" />
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="32dp" />
-
         </LinearLayout>
     </ScrollView>
 

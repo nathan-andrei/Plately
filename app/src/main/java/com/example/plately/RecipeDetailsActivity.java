@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.widget.PopupMenu;
@@ -14,6 +15,7 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.graphics.Insets;
@@ -25,6 +27,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.bumptech.glide.Glide;
 import com.example.plately.databinding.ActivityRecipeDetailsBinding;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.UserInfo;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
@@ -96,6 +99,36 @@ public class RecipeDetailsActivity extends AppCompatActivity {
         binding.imageBtnSaveRecipe.setOnClickListener(v -> toggleFavorite());
 
         binding.imageBtnViewMore.setOnClickListener(v -> showOptionsMenu());
+
+        String uid;
+        //Check if user is signed in. If not, disable the ability to submit a review
+        if(auth.getCurrentUser() == null){ //This check has never once worked
+            Log.d("[Recipe Details] Auth check", "User is anonymous.1");
+            binding.editTextReview.setActivated(false);
+            binding.buttonSubmitReview.setText("Please login to submit a review");
+            binding.buttonSubmitReview.setEnabled(false);
+        }
+        
+        uid = auth.getCurrentUser().getUid();
+        Log.d("[Recipe Details] Auth check", "UID: " + uid);
+        for(UserInfo s : auth.getCurrentUser().getProviderData()){
+            Log.d("[Recipe Details] Auth check", "Found provider data");
+            Log.d("[Recipe Details] Auth check", "Provider ID:" + s.getProviderId());
+            Log.d("[Recipe Details] Auth check", "Email: " + s.getEmail());
+            Log.d("[Recipe Details] Auth check", "UID: " + s.getUid());
+        }
+        //I REALLY DONT KNOW WHY THE PReVIOUS METHODS OF DOING ANON CHECKS DOESNT WORK NOW
+        if(auth.getCurrentUser().isAnonymous()){
+            Log.d("[Recipe Details] Auth check", "User is anonymous.2");
+            binding.editTextReview.setEnabled(false);
+            binding.editTextReview.setInputType(InputType.TYPE_NULL);
+            binding.editTextReview.setFocusable(false);
+            binding.buttonSubmitReview.setText("Please login to submit a review");
+            //binding.buttonSubmitReview.setTextColor(getResources().getColor(R.color.white));
+            //binding.buttonSubmitReview.setTextColor(ContextCompat.getColor(this, R.color.white));
+            
+            binding.buttonSubmitReview.setEnabled(false);
+        }
 
 
         // get the recipe from main menu then update the UI (wip)

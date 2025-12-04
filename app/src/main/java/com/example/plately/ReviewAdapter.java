@@ -108,6 +108,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
             isOwner = authorId.equals(currentUserId);
         }
         holder.imageButtonReviewOptions.setVisibility(isOwner ? View.VISIBLE : View.GONE);
+        holder.textViewYouIndicator.setVisibility(isOwner ? View.VISIBLE : View.GONE);
 
         // Set up menu button click listener
         holder.imageButtonReviewOptions.setOnClickListener(v -> {
@@ -201,6 +202,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
         ImageView imageViewReviewPhoto2;
         ImageView imageViewReviewPhoto3;
         ImageButton imageButtonReviewOptions;
+        TextView textViewYouIndicator;
 
         public ReviewViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -211,6 +213,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
             imageViewReviewPhoto2 = itemView.findViewById(R.id.imageViewReviewPhoto2);
             imageViewReviewPhoto3 = itemView.findViewById(R.id.imageViewReviewPhoto3);
             imageButtonReviewOptions = itemView.findViewById(R.id.imageButtonReviewOptions);
+            textViewYouIndicator = itemView.findViewById(R.id.textViewYouIndicator);
         }
     }
 }
