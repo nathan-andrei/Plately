@@ -39,6 +39,7 @@ public class RecipeDetailsActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private FirebaseAuth auth;
     private String recipeId;
+    private String authorId;
     private boolean isFavorite = false;
     private List<ReviewModel> reviewList = new ArrayList<>();
     private ReviewAdapter reviewAdapter;
@@ -99,7 +100,7 @@ public class RecipeDetailsActivity extends AppCompatActivity {
                         return;
                     }
 
-                    String authorId = recipe.getAuthor().get("uid").getId();
+                    authorId = recipe.getAuthor().get("uid").getId();
                     String currentUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
                     applyAuthorVisibility(authorId, currentUid);
@@ -333,8 +334,16 @@ public class RecipeDetailsActivity extends AppCompatActivity {
             return;
         }
 
+        if (rating == 0) {
+            Toast.makeText(this, "Please select a rating", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         String currentUserId = auth.getUid();
-        if (currentUserId == null) return;
+        if (currentUserId == null) {
+            Toast.makeText(this, "You must be logged in to submit a review", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         // author reference
         DocumentReference authorRef = db.collection("users").document(currentUserId);
@@ -354,21 +363,35 @@ public class RecipeDetailsActivity extends AppCompatActivity {
         // add review to reviews collection
         db.collection("reviews").add(reviewMap)
                 .addOnSuccessListener(reviewDocRef -> {
-
-                    // add reviews to the recipe's review array
-                    recipeRef.update("reviews", FieldValue.arrayUnion(reviewDocRef))
+                    // add review reference to user createdReviews array
+                    authorRef.update("createdReviews", FieldValue.arrayUnion(reviewDocRef))
                             .addOnSuccessListener(aVoid -> {
-                                Toast.makeText(this, "Review added!", Toast.LENGTH_SHORT).show();
+                                // add reviews to the recipe's review array
+                                recipeRef.update("reviews", FieldValue.arrayUnion(reviewDocRef))
+                                        .addOnSuccessListener(aVoid2 -> {
+                                            Toast.makeText(this, "Review submitted successfully!", Toast.LENGTH_SHORT).show();
 
-                                // after adding reset the inputs
-                                binding.editTextReview.setText("");
-                                binding.ratingBarUser.setRating(0);
+                                            // after adding reset the inputs
+                                            binding.editTextReview.setText("");
+                                            binding.ratingBarUser.setRating(0);
+                                            binding.editTextReview.clearFocus();
+                                            loadReviews();
+                                        })
+                                        .addOnFailureListener(e -> {
+                                            Toast.makeText(this, "Failed to update recipe with review", Toast.LENGTH_SHORT).show();
+                                            loadReviews();
+                                        });
+                            })
+                            .addOnFailureListener(e -> {
+                                Toast.makeText(this, "Failed to add review to user profile", Toast.LENGTH_SHORT).show();
+                                // try to update still and refresh
+                                recipeRef.update("reviews", FieldValue.arrayUnion(reviewDocRef));
                                 loadReviews();
                             });
-
                 })
-                .addOnFailureListener(e ->
-                        Toast.makeText(this, "Failed to add review", Toast.LENGTH_SHORT).show());
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Failed to submit review. Please try again.", Toast.LENGTH_SHORT).show();
+                });
     }
 
     private void setupRecyclerView() {
@@ -381,6 +404,7 @@ public class RecipeDetailsActivity extends AppCompatActivity {
         if (recipeId == null) return;
 
         DocumentReference recipeRef = db.collection("recipes").document(recipeId);
+        String currentUserId = auth.getUid();
 
         db.collection("reviews")
                 .whereEqualTo("recipeRef", recipeRef)
@@ -388,12 +412,71 @@ public class RecipeDetailsActivity extends AppCompatActivity {
                     if (error != null || querySnapshot == null) return;
 
                     reviewList.clear();
+                    float totalRating = 0;
+                    int reviewCount = 0;
+                    boolean userHasReview = false;
+
                     for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
                         ReviewModel review = doc.toObject(ReviewModel.class);
-                        if (review != null) reviewList.add(review);
+                        if (review != null) {
+                            reviewList.add(review);
+                            totalRating += review.getRating();
+                            reviewCount++;
+
+                            // Check if current user already has a review
+                            if (currentUserId != null && review.getAuthor() != null && 
+                                review.getAuthor().get("uid") != null &&
+                                review.getAuthor().get("uid").getId().equals(currentUserId)) {
+                                userHasReview = true;
+                            }
+                        }
                     }
                     reviewAdapter.notifyDataSetChanged();
+
+                    // get and display overall rating
+                    updateOverallRating(totalRating, reviewCount);
+
+                    // check if review section should be disabled
+                    checkAndDisableReviewSection(userHasReview);
                 });
+    }
+
+    private void updateOverallRating(float totalRating, int reviewCount) {
+        if (reviewCount == 0) {
+            binding.ratingBarOverall.setRating(0);
+            return;
+        }
+
+        float averageRating = totalRating / reviewCount;
+        
+        // If x.0 - x.4, round down = x, if x.5 - x.9, show x.5 stars
+        float displayRating;
+        int wholePart = (int) averageRating;
+        float decimalPart = averageRating - wholePart;
+        
+        if (decimalPart >= 0.5f) {
+            displayRating = wholePart + 0.5f;
+        } else {
+            displayRating = wholePart;
+        }
+        
+        binding.ratingBarOverall.setRating(displayRating);
+    }
+
+    // disable review section if user is author or already has a review
+    private void checkAndDisableReviewSection(boolean userHasReview) {
+        if (recipeId == null || authorId == null) return;
+
+        String currentUserId = auth.getUid();
+        if (currentUserId == null) return;
+
+        boolean isAuthor = currentUserId.equals(authorId);
+
+        if (isAuthor || userHasReview) {
+            binding.reviewSectionContainer.setVisibility(View.GONE);
+        } else {
+            binding.reviewSectionContainer.setVisibility(View.VISIBLE);
+        }
     }
 
     // camera launcher

@@ -277,62 +277,69 @@
                 android:textSize="16sp"
                 android:text="insert youtube link" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:text="Write Your Own Review"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
             <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginTop="8dp">
-
-                <RatingBar
-                    android:id="@+id/ratingBarUser"
-                    style="?android:attr/ratingBarStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:numStars="5"
-                    android:stepSize="1" />
-
-                <ImageButton
-                    android:id="@+id/imageBtnAddPhotoReview"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:background="@android:color/transparent"
-                    android:contentDescription="Add photo review"
-                    android:src="@drawable/baseline_camera_alt_24"
-                    android:tint="#D32F2F" />
-
-            </LinearLayout>
-
-
-            <EditText
-                android:id="@+id/editTextReview"
+                android:id="@+id/reviewSectionContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:hint="Share your thoughts on this recipe..."
-                android:inputType="textMultiLine"
-                android:minLines="3"
-                android:textSize="16sp"
-                android:gravity="top|start"
-                android:background="@android:drawable/editbox_background"/>
+                android:orientation="vertical"
+                android:layout_marginTop="24dp">
 
-            <Button
-                android:id="@+id/buttonSubmitReview"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:layout_marginTop="8dp"
-                android:backgroundTint="#D32F2F"
-                android:text="Submit Review" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Write Your Own Review"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="8dp">
+
+                    <RatingBar
+                        android:id="@+id/ratingBarUser"
+                        style="?android:attr/ratingBarStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:numStars="5"
+                        android:stepSize="0.5" />
+
+                    <ImageButton
+                        android:id="@+id/imageBtnAddPhotoReview"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:background="@android:color/transparent"
+                        android:contentDescription="Add photo review"
+                        android:src="@drawable/baseline_camera_alt_24"
+                        android:tint="#D32F2F" />
+
+                </LinearLayout>
+
+
+                <EditText
+                    android:id="@+id/editTextReview"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:hint="Share your thoughts on this recipe..."
+                    android:inputType="textMultiLine"
+                    android:minLines="3"
+                    android:textSize="16sp"
+                    android:gravity="top|start"
+                    android:background="@android:drawable/editbox_background"/>
+
+                <Button
+                    android:id="@+id/buttonSubmitReview"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:layout_marginTop="8dp"
+                    android:backgroundTint="#D32F2F"
+                    android:text="Submit Review" />
+            </LinearLayout>
 
             <TextView
                 android:layout_width="wrap_content"

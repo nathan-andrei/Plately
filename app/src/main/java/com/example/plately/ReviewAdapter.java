@@ -3,6 +3,8 @@ package com.example.plately;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -24,7 +26,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
     @Override
     public ReviewViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.review_item_layout, parent, false); // item_review.xml should have a TextView with id textViewReview
+                .inflate(R.layout.review_item_layout, parent, false);
         return new ReviewViewHolder(view);
     }
 
@@ -32,25 +34,26 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
     public void onBindViewHolder(@NonNull ReviewViewHolder holder, int position) {
         ReviewModel review = reviews.get(position);
 
-        // get username from author UID
+        // ratings as stars
+        holder.ratingBarReview.setRating(review.getRating());
+
+        // review text
+        holder.textViewReviewText.setText(review.getText() != null ? review.getText() : "");
+
+        // Image placeholders (gray boxes)
+
+        // Get username from author UID
         if (review.getAuthor() != null && review.getAuthor().get("uid") != null) {
             review.getAuthor().get("uid").get()
                     .addOnSuccessListener(userDoc -> {
                         String username = userDoc.getString("username");
-                        holder.textViewReview.setText(
-                                (username != null ? username : "Unknown") +
-                                        " (" + review.getRating() + " stars): " + review.getText()
-                        );
+                        holder.textViewReviewUsername.setText(username != null ? username : "Unknown");
                     })
                     .addOnFailureListener(e -> {
-                        holder.textViewReview.setText(
-                                "Unknown (" + review.getRating() + " stars): " + review.getText()
-                        );
+                        holder.textViewReviewUsername.setText("Unknown");
                     });
         } else {
-            holder.textViewReview.setText(
-                    "Unknown (" + review.getRating() + " stars): " + review.getText()
-            );
+            holder.textViewReviewUsername.setText("Unknown");
         }
     }
 
@@ -62,11 +65,21 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
 
     // view holder
     public static class ReviewViewHolder extends RecyclerView.ViewHolder {
-        TextView textViewReview;
+        TextView textViewReviewUsername;
+        RatingBar ratingBarReview;
+        TextView textViewReviewText;
+        ImageView imageViewReviewPhoto1;
+        ImageView imageViewReviewPhoto2;
+        ImageView imageViewReviewPhoto3;
 
         public ReviewViewHolder(@NonNull View itemView) {
             super(itemView);
-            textViewReview = itemView.findViewById(R.id.textViewReview);
+            textViewReviewUsername = itemView.findViewById(R.id.textViewReviewUsername);
+            ratingBarReview = itemView.findViewById(R.id.ratingBarReview);
+            textViewReviewText = itemView.findViewById(R.id.textViewReviewText);
+            imageViewReviewPhoto1 = itemView.findViewById(R.id.imageViewReviewPhoto1);
+            imageViewReviewPhoto2 = itemView.findViewById(R.id.imageViewReviewPhoto2);
+            imageViewReviewPhoto3 = itemView.findViewById(R.id.imageViewReviewPhoto3);
         }
     }
 }
