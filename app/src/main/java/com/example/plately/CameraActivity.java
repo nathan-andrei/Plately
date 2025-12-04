@@ -41,7 +41,7 @@ import java.io.File;
 import java.util.concurrent.Executors;
 
 public class CameraActivity extends AppCompatActivity {
-    private ImageButton captureBtn;
+    private ImageButton captureBtn, backBtn;
     private PreviewView preview;
     private int cameraFacing = CameraSelector.LENS_FACING_BACK;
     private String URI_KEY = "URI_KEY";
@@ -63,6 +63,14 @@ public class CameraActivity extends AppCompatActivity {
         //Initialize up widgets
         captureBtn = findViewById(R.id.Camera_Capture_Btn);
         preview = findViewById(R.id.Camera_Preview);
+        backBtn = findViewById(R.id.Camera_Back_Btn);
+        
+        //Add click func for back btn
+        backBtn.setOnClickListener((view)->{
+            Intent resultIntent = new Intent();
+            setResult(RESULT_CANCELED, resultIntent);
+            finish();
+        });
 
         // Apply Window Insets (Safety for system bars)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.layoutMainCamera), (v, insets) -> {
