@@ -5,19 +5,19 @@ import static android.view.View.VISIBLE;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.ContactsContract;
-import android.provider.MediaStore;
 import android.text.Html;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,11 +48,14 @@ import com.google.firebase.storage.UploadTask;
 
 import org.checkerframework.checker.units.qual.A;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import com.bumptech.glide.Glide;
 
 public class ProfileActivity extends AppCompatActivity {
     // Widgets for Profile Activity
@@ -64,13 +67,10 @@ public class ProfileActivity extends AppCompatActivity {
     private ArrayList<RecipeModel> createdRecipes = new ArrayList<>(),
                                     savedRecipes = new ArrayList<>();
     private CropImageView ciw;
-    //private Uri takePicture = registerForActivityResult(ActivityResultContracts.TakePicture()) {
-     //   if (it) {
-            //startCameraWithUri()
-    //    } else {
-      //      showErrorMessage("taking picture failed")
-     //   }
-    //}
+    private ImageView profileImage;
+
+    AlertDialog.Builder builder;
+    AlertDialog dialog;
 
     //DB variables
     private FirebaseFirestore db;
@@ -146,7 +146,10 @@ public class ProfileActivity extends AppCompatActivity {
             });
         }
     }
-
+    
+    /* TODO:
+           add this
+     */
     private void setUpReviewsRecyclerView(){
 
     }
@@ -164,7 +167,8 @@ public class ProfileActivity extends AppCompatActivity {
 
         // --- Setup Methods ---
         setUpWidgets();
-        setUpListeners();
+        builder = new AlertDialog.Builder(this);
+        dialog = builder.create();
         //Tried to change action bar text to white, did not work...
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
             getSupportActionBar().setTitle(Html.fromHtml("<font color='FFFFFF'>Your Profile</font>", Html.FROM_HTML_MODE_LEGACY));
@@ -211,28 +215,6 @@ public class ProfileActivity extends AppCompatActivity {
      * */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        /*
-        if(item.getItemId() == R.id.Profile_Edit_Photo){
-            //Check if we don't have permissions to use camera and write to storage. (maybe move to seperate function)
-            //If so, request permissions
-            if(ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
-
-                requestPermissions(new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 100); //100 request code is arbitrary
-
-            }
-            //User DOES have camera permissions.
-            else{
-
-            }
-
-            //Check if user allows access to storage (gallery)
-            if(ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED){
-                //Request only for the write perms
-                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 100); //100 request code is arbitrary
-            }
-            return true;
-        }*/
         if(item.getItemId() == R.id.Profile_Edit_Camera){
             //This image cropper lets you crop your selected image.
             //Idk how to make this work...
@@ -248,7 +230,7 @@ public class ProfileActivity extends AppCompatActivity {
         }
         else if(item.getItemId() == R.id.Profile_Edit_Gallery){
             //Retrieve an image from the gallery
-            //TODO: make the code
+            /*TODO: PERM CHECKS*/
             galleryLauncher.launch("image/*");
             return true;
         }
@@ -269,18 +251,21 @@ public class ProfileActivity extends AppCompatActivity {
         }
     }
 
-    //SETUP FUNCTS
-
+    //SETUP FUNCS
     private void setUpWidgets() {
         // Find the Settings button in the header toolbar
         buttonSettings = findViewById(R.id.buttonSettings);
         displayName = findViewById(R.id.textViewUserName);
+        profileImage = findViewById(R.id.imageViewProfilePicture);
 
         //Retrieve user data
         String uid;
         //Check if user is signed in. If not, oh no! Handle later.
         if(dbAuth.getCurrentUser() != null)  uid = dbAuth.getCurrentUser().getUid();
         else                                 return; //Handle the error if it ever becomes an issue.
+        
+        //Check if profile picture is in local file system
+        File pfpFile = new File(getFilesDir(), "images/ProfilePicture.jpg");
 
         db.collection("users")
                 .document(uid)
@@ -296,6 +281,20 @@ public class ProfileActivity extends AppCompatActivity {
                             displayName.setText(user.getUsername());
                             setUpCreatedRecipesRecyclerView();
                             setUpSavedRecipesRecyclerView();
+                            if(pfpFile.exists()){
+                                //pfp is in local file system
+                                Bitmap pfpImg = BitmapFactory.decodeFile(pfpFile.getAbsolutePath());
+                                profileImage.setImageBitmap(pfpImg);
+                            }
+                            else{
+                                //Pfp is not in local file system, download it.
+                                Log.d("[Firestore] Profile: Read", "User pfp uri:" + user.getProfilePicture());
+                                //Check if there's a uri in the system, if not, then do nothing.
+                                if(!Objects.equals(user.getProfilePicture(), "") && !Objects.equals(user.getProfilePicture(), "null") && user.getProfilePicture() != null) {
+                                    Log.d("[Firestore Profile: Read", "Entered to update");
+                                    updateProfilePicture(user.getProfilePicture());
+                                }
+                            }
                         } else {
                             Log.w("[Firestore] Profile: Read", "User logged in but no info on DB!");
                         }
@@ -306,22 +305,7 @@ public class ProfileActivity extends AppCompatActivity {
                     }
                 });
     }
-
-    private void setUpListeners() {
-        // Placeholder listener for the Settings button
-        if (buttonSettings != null) {
-            buttonSettings.setOnClickListener(v -> {
-                //Toast.makeText(ProfileActivity.this, "Settings clicked (Feature not implemented)", Toast.LENGTH_SHORT).show();
-
-                //For now, we log out for testing...
-                FirebaseController.getInstance().logOut();
-                Intent i = new Intent(this, LoginActivity.class);
-                startActivity(i);
-                finish();
-            });
-        }
-    }
-
+    
     //Launch the camera and get the uri for the captured image.
     private final ActivityResultLauncher<Intent> cameraLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -330,28 +314,11 @@ public class ProfileActivity extends AppCompatActivity {
                     Intent data = result.getData();
                     if (data != null) {
                         Uri uri = Uri.parse(data.getStringExtra("URI_KEY"));
+                        //Upload image to firestore
+                        uploadProfilePicture(uri);
                         //This is supposed to open the image cropper, not working!!
                         ciw.setVisibility(VISIBLE);
                         ciw.setImageUriAsync(uri);
-                        /*
-                        try {
-                            Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(),Uri.parse(data.getStringExtra("URI_KEY")));
-                            
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                        */
-                        StorageReference newPfpRef = FirebaseStorage.getInstance().getReference().child("users/" + dbAuth.getCurrentUser().getUid() + "/ProfilePicture.jpg");
-                        UploadTask uploadTask = newPfpRef.putFile(uri);
-                        
-                        uploadTask.addOnCompleteListener(this, task ->{
-                            if(task.isSuccessful()){
-                                 Log.d("[Firestore] Image Upload", "Sucessfully uploaded image yay");
-                            }
-                            else{
-                                Log.d("[Firestore] Image Upload", "Failed to upload image noo");
-                            }
-                        });
                     }
                 }
             }
@@ -372,41 +339,61 @@ public class ProfileActivity extends AppCompatActivity {
         // get uid
         String uid = dbAuth.getCurrentUser().getUid();
 
+        builder.setMessage("Please wait...");
+        dialog = builder.create();
+        dialog.show();
+
         // tas put here users/uid/profile.jpg
         StorageReference storageRef = storage.getReference().child("users/" + uid + "/profile.jpg");
-
-        storageRef.putFile(imageUri)
-                .addOnSuccessListener(taskSnapshot -> {
-
-                    //get url then upate the document
-                    storageRef.getDownloadUrl().addOnSuccessListener(downloadUri -> {
+        
+        storageRef.putFile(imageUri).addOnCompleteListener(this, task ->{
+            if(task.isSuccessful()){
+                Log.d("[Firestore] Image Upload", "Sucessfully uploaded image to storage yay");
+                /*
+                    TODO: We should delete the temporary file now.
+                 */
+                //File uri.delete?
+                
+                //Get the download url for the new pfp
+                storageRef.getDownloadUrl().addOnCompleteListener(this, getDownloadTask -> {
+                    if(getDownloadTask.isSuccessful()){
+                        Log.d("[Firestore] Image Download", "Sucessfully retrieved the download URI");
+                        Uri downloadUri = getDownloadTask.getResult();
                         Map<String, Object> data = new HashMap<>();
                         data.put("profilePicture", downloadUri.toString());
-
+                        
+                        //Change the reference from the db
                         db.collection("users").document(uid)
-                                .set(data, SetOptions.merge())
-                                .addOnSuccessListener(aVoid -> {
-                                    Toast.makeText(ProfileActivity.this, "Profile picture updated!", Toast.LENGTH_SHORT).show();
-
-                                    // update ui but it doesn't work
-                                    ciw.setVisibility(View.VISIBLE);
-                                    ciw.setImageUriAsync(downloadUri);
-                                })
-                                .addOnFailureListener(e -> {
-                                    Toast.makeText(ProfileActivity.this, "Failed to update Firestore", Toast.LENGTH_SHORT).show();
-                                    e.printStackTrace();
+                                .set(data, SetOptions.merge()).addOnCompleteListener(this, updateRefTask ->{
+                                   if(updateRefTask.isSuccessful()){
+                                       //Download the File and update the image view
+                                       Log.d("[Firestore] Image Download", "Succesfully changed image reference in db");
+                                       updateProfilePicture(downloadUri.toString());
+                                   }
+                                   else{
+                                       Log.w("[Firestore] Image Download", "Failed to change image reference in db");
+                                       dialog.dismiss();
+                                       Toast.makeText(ProfileActivity.this, "Failed to change profile picture. Please try again later.", Toast.LENGTH_SHORT).show();
+                                   }
                                 });
-
-                    }).addOnFailureListener(e -> {
-                        Toast.makeText(ProfileActivity.this, "Failed to get download URL", Toast.LENGTH_SHORT).show();
-                        e.printStackTrace();
-                    });
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(ProfileActivity.this, "Failed to upload image", Toast.LENGTH_SHORT).show();
-                    e.printStackTrace();
+                    }
+                    else{
+                        Log.w("[Firestore] Image Download", "Failed to retrieve the download URI");
+                        dialog.dismiss();
+                        Toast.makeText(ProfileActivity.this, "Failed to change profile picture. Please try again later.", Toast.LENGTH_SHORT).show();
+                    }
                 });
+            }
+            else{
+                Log.w("[Firestore] Image Upload", "Failed to upload image noo");
+                dialog.dismiss();
+                Toast.makeText(ProfileActivity.this, "Failed to change profile picture. Please try again later.", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
-
+    private void updateProfilePicture(String downloadUri){
+        Glide.with(this).load(downloadUri).into(profileImage);
+        dialog.dismiss();        
+    }
 }

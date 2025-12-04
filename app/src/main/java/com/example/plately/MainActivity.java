@@ -31,6 +31,8 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 
+import org.w3c.dom.Document;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -41,6 +43,8 @@ public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
     private MyAdapter adapter;
     private ArrayList<RecipeModel> recipes;
+    private ArrayList<RecipeModel> recipesForTags;
+    private ArrayList<String> tags;
     private FirebaseFirestore db;
     private FirebaseAuth auth;
     private boolean tagsVisibility = false;
@@ -80,10 +84,10 @@ public class MainActivity extends AppCompatActivity {
                     recipeDetailsLauncher.launch(intent);
                 }
         );
-
-
         binding.recyclerView.setAdapter(adapter);
 
+        recipesForTags = new ArrayList<>();
+        tags = new ArrayList<>();
         getRecipesFromDb();
 
         //Add recipes button
@@ -136,17 +140,7 @@ public class MainActivity extends AppCompatActivity {
 
         //Setup the recycler for the tags
         binding.TagsRV.setLayoutManager(new LinearLayoutManager(this));
-        TagsAdapter tagsAdapter = new TagsAdapter(
-            (tagName,  state) -> {  // favorite listener to update favorite status
-            if (state){
-                //Remove from filter list
-                tagFilter.remove(tagName);
-            }
-            else{
-                tagFilter.add(tagName);
-            }
-        });
-        binding.TagsRV.setAdapter(tagsAdapter);
+        //The adapter initialization is in getRecipesFromDb();
         binding.TagsMenu.setVisibility(View.GONE); //HIDE THE TAGS
         
         //Filter
@@ -169,11 +163,14 @@ public class MainActivity extends AppCompatActivity {
             
             for(RecipeModel recipe : recipes){
                 if(recipe.getRecipeName().toLowerCase().contains(query.toLowerCase())){
-                    filteredRecipes.add(recipe);
+                    //Check if the recipe has all the required tags
+                    if(tagFilter.isEmpty() || recipe.getTags().containsAll(tagFilter))
+                        filteredRecipes.add(recipe);
                 }
             }
             for(String tag : tagFilter){
                 Log.d("[ActivityList] TagFilter", "Found filter: " + tag);
+                
             }
             adapter.setRecipes(filteredRecipes);
             adapter.notifyDataSetChanged();
@@ -355,6 +352,68 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
+        //Getting the recipes and tags for the filters since we don't really need a snapshot listener for it
+        //First, get the recipes
+        db.collection("recipes").get().addOnCompleteListener(this, getRecipestask ->{
+            if(getRecipestask.isSuccessful()){
+                Log.d("[Firestore] Retrieve Tags", "Succefully retrieved recipes");
+                //Then get the tags
+                db.collection("tags").get().addOnCompleteListener(this, getTagsTask ->{
+                    if(getTagsTask.isSuccessful()){
+                        Log.d("[Firestore] Retrieve Tags", "Succefully retrieved tags");
+                        //Unpack the recipes
+                        for(DocumentSnapshot doc : getRecipestask.getResult())
+                            recipesForTags.add(doc.toObject(RecipeModel.class));
+                        //Unpack the tags
+                        for(DocumentSnapshot doc : getTagsTask.getResult())
+                            tags.add(doc.getString("tagName"));
+                            
+                        //Create and set the adapter    
+                        TagsAdapter tagsAdapter = new TagsAdapter(
+                                recipesForTags,
+                                tags,
+                                (tagName,  state) -> {  // favorite listener to update favorite status
+                                    if (state){
+                                        //Remove from filter list
+                                        tagFilter.remove(tagName);
+                                    }
+                                    else{
+                                        tagFilter.add(tagName);
+                                    }
+                                    updateCurrentTagDisplay();
+                                });
+                        binding.TagsRV.setAdapter(tagsAdapter);
+                    }
+                    else{
+                        Log.w("[Firestore] Retrieve Tags", "Failed to retrieve tags");
+                    }
+                });
+            }
+            else{
+                Log.w("[Firestore] Retrieve Tags", "Failed to retrieve recipes");
+            }
+        });
+    }
+    
+    private void updateCurrentTagDisplay(){
+        boolean firstTag = true;
+        if(tagFilter.isEmpty())
+            binding.currentTagsTV.setVisibility(View.GONE);
+        else{
+            binding.currentTagsTV.setVisibility(View.VISIBLE);
+            StringBuilder currTags = new StringBuilder("Current filter: ");
+            
+            for(String tag : tagFilter){
+                if(!firstTag){
+                    currTags.append(", ").append(tag);
+                }
+                else{
+                    currTags.append(tag);
+                    firstTag = false;
+                }
+            }
+            binding.currentTagsTV.setText(currTags);
+        }
     }
 
     private final ActivityResultLauncher<Intent> recipeDetailsLauncher = registerForActivityResult(

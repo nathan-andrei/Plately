@@ -97,12 +97,12 @@ public class CameraActivity extends AppCompatActivity {
            // requestPermissions(new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 100); //100 request code is arbitrary
         }
         //check for write permissions
-        if(ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
-            Log.d("[Camera] Permissions", "Asking for write ext  perms");
+        //if(ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+            //Log.d("[Camera] Permissions", "Asking for write ext  perms");
             //COMMENTED OUT, THE PERM LAUNCHER WASN'T PLAYING NICE
             //TURNS OUT, NOT REQUIRED??
             //requestPermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE); //100 request code is arbitrary
-        }
+        //}
 
         startCamera();
     }
