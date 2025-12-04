@@ -63,8 +63,14 @@ public class EditRecipeActivity extends AppCompatActivity {
             binding.editEditTextRecipeName.setText(doc.getString("recipeName"));
             binding.editEditTextSourceInput.setText(doc.getString("source"));
             binding.editEditTextServesInput.setText(String.valueOf(doc.getLong("servesPax") != null ? doc.getLong("servesPax") : ""));
-            binding.editEditTextPrepTimeInput.setText(String.valueOf(doc.getLong("prepTime") != null ? doc.getLong("prepTime") : ""));
-            binding.editEditTextCookTimeInput.setText(String.valueOf(doc.getLong("cookTime") != null ? doc.getLong("cookTime") : ""));
+            
+            // Get prep and cook time (stored as minutes)
+            Object prepTimeObj = doc.get("prepTime");
+            Object cookTimeObj = doc.get("cookTime");
+            double prepTime = prepTimeObj instanceof Number ? ((Number) prepTimeObj).doubleValue() : 0.0;
+            double cookTime = cookTimeObj instanceof Number ? ((Number) cookTimeObj).doubleValue() : 0.0;
+            binding.editEditTextPrepTimeInput.setText(prepTime > 0 ? String.valueOf((int) prepTime) : "");
+            binding.editEditTextCookTimeInput.setText(cookTime > 0 ? String.valueOf((int) cookTime) : "");
             binding.editEditTextIngredientsInput.setText(joinStringList(doc.get("ingredients")));
             binding.editEditTextInstructionsInput.setText(joinStringList(doc.get("steps")));
             binding.editEditTextNotesInput.setText(joinStringList(doc.get("notes")));
@@ -79,8 +85,8 @@ public class EditRecipeActivity extends AppCompatActivity {
         String recipeName = binding.editEditTextRecipeName.getText().toString().trim();
         String source = binding.editEditTextSourceInput.getText().toString().trim();
         int serves = parseInt(binding.editEditTextServesInput.getText().toString().trim());
-        int prepTime = parseInt(binding.editEditTextPrepTimeInput.getText().toString().trim());
-        int cookTime = parseInt(binding.editEditTextCookTimeInput.getText().toString().trim());
+        double prepTime = parseDouble(binding.editEditTextPrepTimeInput.getText().toString().trim());
+        double cookTime = parseDouble(binding.editEditTextCookTimeInput.getText().toString().trim());
         List<String> ingredients = splitLines(binding.editEditTextIngredientsInput.getText().toString());
         List<String> steps = splitLines(binding.editEditTextInstructionsInput.getText().toString());
         List<String> notes = splitLines(binding.editEditTextNotesInput.getText().toString());
@@ -116,6 +122,14 @@ public class EditRecipeActivity extends AppCompatActivity {
     private int parseInt(String s) {
         try {
             return Integer.parseInt(s);
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    private double parseDouble(String s) {
+        try {
+            return Double.parseDouble(s);
         } catch (Exception e) {
             return 0;
         }

@@ -34,8 +34,17 @@ public class MyViewHolder extends RecyclerView.ViewHolder {
         );
 
         //Check if the recipe is owned by the user
-        if(!Objects.equals(recipe.getAuthor().get("uid").getId(), FirebaseAuth.getInstance().getCurrentUser().getUid())){
-            //If not, add the button binding
+        String currentUid = FirebaseAuth.getInstance().getCurrentUser() != null ? 
+                FirebaseAuth.getInstance().getCurrentUser().getUid() : null;
+        String authorUid = null;
+        
+        if (recipe.getAuthor() != null && recipe.getAuthor().get("uid") != null) {
+            authorUid = recipe.getAuthor().get("uid").getId();
+        }
+
+        if (currentUid != null && authorUid != null && !Objects.equals(authorUid, currentUid)) {
+            //If not the author, show and enable the button
+            binding.buttonFavorite.setVisibility(View.VISIBLE);
             binding.buttonFavorite.setOnClickListener(v -> {
                 boolean newState = !recipe.isFavorite();
                 recipe.setFavorite(newState);
@@ -52,8 +61,9 @@ public class MyViewHolder extends RecyclerView.ViewHolder {
             });
         }
         else{
-            //If the user IS the author, hide the favourites button.
+            //If the user IS the author (or author check failed), hide the favourites button.
             binding.buttonFavorite.setVisibility(View.GONE);
+            binding.buttonFavorite.setOnClickListener(null); // clear any previous listener to be sure
         }
 
 

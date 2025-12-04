@@ -254,10 +254,10 @@ public class RecipeDetailsActivity extends AppCompatActivity {
         // num servings
         binding.textViewServings.setText("Servings: " + (int) recipe.getServesPax());
 
-        // prep & cook time
-        binding.textViewPrepTime.setText("Prep time: " + (int) recipe.getPrepTime() + " min");
-        binding.textViewCookingTime.setText("Cooking time: " + (int) recipe.getCookTime() + " min");
-        binding.textViewTotalTime.setText("Total time: " + (int)(recipe.getPrepTime() + recipe.getCookTime()) + " min");
+        // prep & cook time (formatted as hours and minutes)
+        binding.textViewPrepTime.setText("Prep time: " + formatTimeInHoursAndMinutes(recipe.getPrepTime()));
+        binding.textViewCookingTime.setText("Cooking time: " + formatTimeInHoursAndMinutes(recipe.getCookTime()));
+        binding.textViewTotalTime.setText("Total time: " + formatTimeInHoursAndMinutes(recipe.getPrepTime() + recipe.getCookTime()));
 
         // tags
         if (recipe.getTags() != null && !recipe.getTags().isEmpty()) {
@@ -507,5 +507,21 @@ public class RecipeDetailsActivity extends AppCompatActivity {
                 }
             }
     );
+
+    // format minutes as hours and minutes
+    private String formatTimeInHoursAndMinutes(double minutes) {
+        int totalMinutes = (int) minutes;
+        if (totalMinutes < 60) {
+            return totalMinutes + " min";
+        } else {
+            int hours = totalMinutes / 60;
+            int mins = totalMinutes % 60;
+            if (mins == 0) {
+                return hours + " hr";
+            } else {
+                return hours + " hr " + mins + " min";
+            }
+        }
+    }
 
 }

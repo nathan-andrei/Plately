@@ -197,7 +197,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:drawableStart="@drawable/baseline_access_time_24"
-                    android:text="Prep Time (in hr)"
+                    android:text="Prep Time (in min)"
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
@@ -206,8 +206,8 @@
                     android:layout_width="50dp"
                     android:layout_height="wrap_content"
                     android:backgroundTint="#B0B0B0"
-                    android:hint="hr"
-                    android:inputType="numberDecimal" />
+                    android:hint="min"
+                    android:inputType="number" />
             </LinearLayout>
 
             <LinearLayout
@@ -222,7 +222,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:drawableStart="@drawable/baseline_access_time_24"
-                    android:text="Cook Time (in hr)"
+                    android:text="Cook Time (in min)"
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
@@ -231,8 +231,8 @@
                     android:layout_width="50dp"
                     android:layout_height="wrap_content"
                     android:backgroundTint="#B0B0B0"
-                    android:hint="hr"
-                    android:inputType="numberDecimal" />
+                    android:hint="min"
+                    android:inputType="number" />
             </LinearLayout>
 
             <LinearLayout
