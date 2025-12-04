@@ -81,7 +81,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Image"
+                    android:text="Images (up to 3, optional)"
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
@@ -94,16 +94,91 @@
 
             </LinearLayout>
 
-            <ImageView
-                android:id="@+id/imageViewSelected"
-                android:layout_width="200dp"
-                android:layout_height="200dp"
-                android:layout_gravity="start"
+            <!-- Three side-by-side image preview boxes -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="16dp"
-                android:scaleType="centerCrop"
-                android:background="@android:color/darker_gray"
-                android:visibility="gone" />
+                android:orientation="horizontal"
+                android:weightSum="3">
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="120dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="4dp"
+                    android:background="@android:color/darker_gray">
+
+                    <ImageView
+                        android:id="@+id/imageViewSelected1"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        android:visibility="gone" />
+
+                    <ImageButton
+                        android:id="@+id/buttonRemoveImage1"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="top|end"
+                        android:layout_margin="4dp"
+                        android:background="@android:color/transparent"
+                        android:src="@android:drawable/ic_menu_close_clear_cancel"
+                        android:visibility="gone" />
+                </FrameLayout>
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="120dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="4dp"
+                    android:background="@android:color/darker_gray">
+
+                    <ImageView
+                        android:id="@+id/imageViewSelected2"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        android:visibility="gone" />
+
+                    <ImageButton
+                        android:id="@+id/buttonRemoveImage2"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="top|end"
+                        android:layout_margin="4dp"
+                        android:background="@android:color/transparent"
+                        android:src="@android:drawable/ic_menu_close_clear_cancel"
+                        android:visibility="gone" />
+                </FrameLayout>
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="120dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="4dp"
+                    android:background="@android:color/darker_gray">
+
+                    <ImageView
+                        android:id="@+id/imageViewSelected3"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        android:visibility="gone" />
+
+                    <ImageButton
+                        android:id="@+id/buttonRemoveImage3"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="top|end"
+                        android:layout_margin="4dp"
+                        android:background="@android:color/transparent"
+                        android:src="@android:drawable/ic_menu_close_clear_cancel"
+                        android:visibility="gone" />
+                </FrameLayout>
+            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"

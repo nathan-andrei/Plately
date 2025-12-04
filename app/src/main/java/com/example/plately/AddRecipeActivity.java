@@ -1,6 +1,7 @@
 package com.example.plately;
 
 import android.app.AlertDialog;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -18,6 +19,8 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,17 +33,32 @@ public class AddRecipeActivity extends AppCompatActivity {
     private FirebaseAuth dbAuth;
     private StorageReference storageRef;
 
-    private Uri selectedImageUri = null;
+    private ArrayList<Uri> selectedImageUris = new ArrayList<>();
     private List<String> tagList = new ArrayList<>();
     private List<String> selectedTags = new ArrayList<>();
 
-    //imaeg picker launcher
-    ActivityResultLauncher<String> imagePickerLauncher =
-            registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
-                if (uri != null) {
-                    selectedImageUri = uri;
-                    binding.imageViewSelected.setImageURI(uri);
-                    binding.imageViewSelected.setVisibility(android.view.View.VISIBLE);
+    // Image picker launcher - using OpenDocument for persistent access
+    ActivityResultLauncher<Intent> imagePickerLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                    Uri uri = result.getData().getData();
+                    if (uri != null) {
+                        if (selectedImageUris.size() < 3) {
+                            // Take persistent URI permission to ensure Firebase can access it
+                            try {
+                                final int takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION;
+                                ContentResolver resolver = getContentResolver();
+                                resolver.takePersistableUriPermission(uri, takeFlags);
+                                selectedImageUris.add(uri);
+                                updateImagePreviews();
+                            } catch (SecurityException e) {
+                                Log.e("AddRecipe", "Failed to take persistent URI permission", e);
+                                Toast.makeText(this, "Failed to access image. Please try again.", Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            Toast.makeText(this, "You can only select up to 3 images", Toast.LENGTH_SHORT).show();
+                        }
+                    }
                 }
             });
 
@@ -58,11 +76,60 @@ public class AddRecipeActivity extends AppCompatActivity {
         binding.buttonCancel.setOnClickListener(v -> finish());
         binding.buttonSave.setOnClickListener(v -> saveRecipe());
 
-        binding.buttonImageInput.setOnClickListener(v -> imagePickerLauncher.launch("image/*"));
+        binding.buttonImageInput.setOnClickListener(v -> {
+            if (selectedImageUris.size() < 3) {
+                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                intent.setType("image/*");
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false);
+                imagePickerLauncher.launch(intent);
+            } else {
+                Toast.makeText(this, "You can only select up to 3 images", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Remove image buttons
+        binding.buttonRemoveImage1.setOnClickListener(v -> removeImage(0));
+        binding.buttonRemoveImage2.setOnClickListener(v -> removeImage(1));
+        binding.buttonRemoveImage3.setOnClickListener(v -> removeImage(2));
 
         binding.buttonTagInput.setOnClickListener(v -> showTagDialog());
 
         loadTagsFromDatabase();
+    }
+
+    private void removeImage(int index) {
+        if (index >= 0 && index < selectedImageUris.size()) {
+            selectedImageUris.remove(index);
+            updateImagePreviews();
+        }
+    }
+
+    private void updateImagePreviews() {
+        // Reset all image views
+        binding.imageViewSelected1.setVisibility(android.view.View.GONE);
+        binding.imageViewSelected2.setVisibility(android.view.View.GONE);
+        binding.imageViewSelected3.setVisibility(android.view.View.GONE);
+        binding.buttonRemoveImage1.setVisibility(android.view.View.GONE);
+        binding.buttonRemoveImage2.setVisibility(android.view.View.GONE);
+        binding.buttonRemoveImage3.setVisibility(android.view.View.GONE);
+
+        // show selected images
+        if (selectedImageUris.size() > 0) {
+            Glide.with(this).load(selectedImageUris.get(0)).into(binding.imageViewSelected1);
+            binding.imageViewSelected1.setVisibility(android.view.View.VISIBLE);
+            binding.buttonRemoveImage1.setVisibility(android.view.View.VISIBLE);
+        }
+        if (selectedImageUris.size() > 1) {
+            Glide.with(this).load(selectedImageUris.get(1)).into(binding.imageViewSelected2);
+            binding.imageViewSelected2.setVisibility(android.view.View.VISIBLE);
+            binding.buttonRemoveImage2.setVisibility(android.view.View.VISIBLE);
+        }
+        if (selectedImageUris.size() > 2) {
+            Glide.with(this).load(selectedImageUris.get(2)).into(binding.imageViewSelected3);
+            binding.imageViewSelected3.setVisibility(android.view.View.VISIBLE);
+            binding.buttonRemoveImage3.setVisibility(android.view.View.VISIBLE);
+        }
     }
 
     // load tags collection
@@ -95,11 +162,6 @@ public class AddRecipeActivity extends AppCompatActivity {
         if (recipeName.isEmpty()) {
             binding.editTextRecipeName.setError("Recipe name is required");
             binding.editTextRecipeName.requestFocus();
-            return;
-        }
-
-        if (selectedImageUri == null) {
-            Toast.makeText(this, "Please select an image", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -184,6 +246,80 @@ public class AddRecipeActivity extends AppCompatActivity {
         String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         if (currentUserId == null) return;
 
+        // Upload images first, then save recipe with URLs
+        uploadImagesAndSaveRecipe(recipeName, source, ingredients, steps, recipeDescription,
+                servesPax, prepTime, cookTime, tags, currentUserId);
+    }
+
+    private void uploadImagesAndSaveRecipe(String recipeName, String source,
+                                          List<String> ingredients, List<String> steps, String recipeDescription,
+                                          double servesPax, double prepTime, double cookTime, List<String> tags,
+                                          String currentUserId) {
+        // If no images selected, save recipe with empty image list
+        if (selectedImageUris.isEmpty()) {
+            saveRecipeWithImageUrls(recipeName, source, ingredients, steps, recipeDescription,
+                    servesPax, prepTime, cookTime, tags, new ArrayList<>(), currentUserId);
+            return;
+        }
+
+        // Upload all images to Firebase Storage
+        ArrayList<String> imageUrls = new ArrayList<>();
+        int totalImages = selectedImageUris.size();
+        final int[] uploadedCount = {0};
+
+        for (int i = 0; i < selectedImageUris.size(); i++) {
+            Uri imageUri = selectedImageUris.get(i);
+            String imageFileName = "recipe_" + System.currentTimeMillis() + "_" + i + ".jpg";
+            StorageReference imageRef = storageRef.child(imageFileName);
+
+            UploadTask uploadTask = imageRef.putFile(imageUri);
+            int finalI = i;
+            uploadTask.addOnSuccessListener(taskSnapshot -> {
+                // get download URL
+                imageRef.getDownloadUrl().addOnSuccessListener(downloadUri -> {
+                    imageUrls.add(downloadUri.toString());
+                    uploadedCount[0]++;
+
+                    // upload images first then save recipe
+                    if (uploadedCount[0] == totalImages) {
+                        saveRecipeWithImageUrls(recipeName, source, ingredients, steps, recipeDescription,
+                                servesPax, prepTime, cookTime, tags, imageUrls, currentUserId);
+                    }
+                }).addOnFailureListener(e -> {
+                    Log.e("AddRecipe", "Failed to get download URL for image " + finalI, e);
+                    e.printStackTrace();
+                    uploadedCount[0]++;
+                    Toast.makeText(this, "Failed to upload image " + (finalI + 1) + ": " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    // If all uploads are done (success or failure), still try to save with what we have
+                    if (uploadedCount[0] == totalImages && !imageUrls.isEmpty()) {
+                        saveRecipeWithImageUrls(recipeName, source, ingredients, steps, recipeDescription,
+                                servesPax, prepTime, cookTime, tags, imageUrls, currentUserId);
+                    } else if (uploadedCount[0] == totalImages && imageUrls.isEmpty()) {
+                        Toast.makeText(this, "All image uploads failed. Please try again.", Toast.LENGTH_LONG).show();
+                    }
+                });
+            }).addOnFailureListener(e -> {
+                Log.e("AddRecipe", "Failed to upload image " + finalI + " to storage", e);
+                e.printStackTrace();
+                uploadedCount[0]++;
+                Toast.makeText(this, "Failed to upload image " + (finalI + 1) + " to storage: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                // If all uploads are done (success or failure), still try to save with what we have
+                if (uploadedCount[0] == totalImages && !imageUrls.isEmpty()) {
+                    saveRecipeWithImageUrls(recipeName, source, ingredients, steps, recipeDescription,
+                            servesPax, prepTime, cookTime, tags, imageUrls, currentUserId);
+                } else if (uploadedCount[0] == totalImages && imageUrls.isEmpty()) {
+                    Toast.makeText(this, "All image uploads failed. Please try again.", Toast.LENGTH_LONG).show();
+                }
+            });
+        }
+    }
+
+    private void saveRecipeWithImageUrls(String recipeName, String source,
+                                         List<String> ingredients, List<String> steps, String recipeDescription,
+                                         double servesPax, double prepTime, double cookTime, List<String> tags,
+                                         ArrayList<String> imageUrls, String currentUserId) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
         // create a reference for the author (users/[author])
         DocumentReference authorRef = db.collection("users").document(currentUserId);
         Map<String, Object> authorMap = new HashMap<>();
@@ -200,7 +336,7 @@ public class AddRecipeActivity extends AppCompatActivity {
         recipe.put("prepTime", prepTime);
         recipe.put("cookTime", cookTime);
         recipe.put("tags", tags != null ? tags : new ArrayList<String>());
-        recipe.put("recipeImages", new ArrayList<String>());
+        recipe.put("recipeImages", imageUrls); 
         recipe.put("reviews", new ArrayList<String>());
         recipe.put("author", authorMap);
 
