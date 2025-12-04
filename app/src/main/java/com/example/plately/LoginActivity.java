@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
 import android.widget.ViewAnimator;
 
@@ -44,11 +45,13 @@ public class LoginActivity extends AppCompatActivity {
     //Login widgets
     private EditText loginEmail, loginPassword;
     private Button loginBtn, loginBackbtn;
+    private ImageButton loginVisibilityBtn;
     private boolean loginPasswordVisibility;
 
     //Register widgets
     private EditText registerName, registerEmail, registerPassword;
     private Button registerBtn, registerBackBtn, showPasswordBtn;
+    private ImageButton registerVisibilityBtn;
     private boolean registerPasswordVisibility;
     ProgressDialog progressDialog;
 
@@ -102,10 +105,12 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void setUpLogin(){
-        if(loginEmail == null)      loginEmail = findViewById(R.id.Login_Email_etv);
-        if(loginPassword == null)   loginPassword = findViewById(R.id.Login_Password_etv);
+        if(loginEmail == null)              loginEmail = findViewById(R.id.Login_Email_etv);
+        if(loginPassword == null)           loginPassword = findViewById(R.id.Login_Password_etv);
+        if(loginVisibilityBtn == null)      loginVisibilityBtn = findViewById(R.id.Login_Toggle_Password_Visibility_btn);
         loginPasswordVisibility = false; //Default it back to not show
 
+        //On click for the Login btn
         findViewById(R.id.Login_btn).setOnClickListener(v -> {
             String email = loginEmail.getText().toString().trim();
             String password = loginPassword.getText().toString().trim();
@@ -137,17 +142,32 @@ public class LoginActivity extends AppCompatActivity {
                 }
             });
         });
+        
+        //Onclick for the password visibility
+        loginVisibilityBtn.setOnClickListener(v -> {
+            if(!loginPasswordVisibility){ //Is not visible, so make show it
+                loginPassword.setTransformationMethod(null);
+                loginVisibilityBtn.setImageResource(R.drawable.shown_eye);
+            } else { //Otherwise, hide it.
+                loginPassword.setTransformationMethod(new PasswordTransformationMethod());
+                loginVisibilityBtn.setImageResource(R.drawable.hidden_eye);
+            }
+            loginPasswordVisibility = !loginPasswordVisibility;
+        });
 
+        //Onlick for going back
         findViewById(R.id.Login_Back_btn).setOnClickListener(v -> {
             viewAnimator.setDisplayedChild(0);
         });
     }
 
     private void setUpRegister() {
-        if(registerName == null)        registerName = findViewById(R.id.Display_Name_etv);
-        if(registerEmail == null)       registerEmail = findViewById(R.id.Register_Email_etv);
-        if(registerPassword == null)    registerPassword = findViewById(R.id.Register_Password_etv);
+        if(registerName == null)            registerName = findViewById(R.id.Display_Name_etv);
+        if(registerEmail == null)           registerEmail = findViewById(R.id.Register_Email_etv);
+        if(registerPassword == null)        registerPassword = findViewById(R.id.Register_Password_etv);
+        if(registerVisibilityBtn == null)   registerVisibilityBtn = findViewById(R.id.Register_Toggle_Password_Visibility_btn);
         registerPasswordVisibility = false;
+        
 
         findViewById(R.id.Register_btn).setOnClickListener(v -> {
             setUpOTP();
@@ -159,10 +179,12 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         findViewById(R.id.Register_Toggle_Password_Visibility_btn).setOnClickListener(v -> {
-            if(!registerPasswordVisibility){
+            if(!registerPasswordVisibility){ //Is not visible, so make show it
                 registerPassword.setTransformationMethod(null);
-            } else {
+                registerVisibilityBtn.setImageResource(R.drawable.shown_eye);
+            } else { //Otherwise, hide it.
                 registerPassword.setTransformationMethod(new PasswordTransformationMethod());
+                registerVisibilityBtn.setImageResource(R.drawable.hidden_eye);
             }
             registerPasswordVisibility = !registerPasswordVisibility;
         });

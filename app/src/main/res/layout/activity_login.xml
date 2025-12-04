@@ -57,7 +57,7 @@
                 android:layout_marginStart="32dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="32dp"
-                android:text="An app for cookers, by cookers. Lorem Ipsum dolor et latinus Ich forgotus da restus"
+                android:text="An app for cookers, by cookers. Explore the culinary world and share your own adventures!"
                 android:textAlignment="center"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -256,6 +256,21 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/Login_Email_etv" />
+
+            <ImageButton
+                android:id="@+id/Login_Toggle_Password_Visibility_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:adjustViewBounds="true"
+                android:background="@android:color/transparent"
+                android:scaleType="centerInside"
+                android:scaleX="0.5"
+                android:scaleY="0.5"
+                android:src="@drawable/hidden_eye"
+                app:layout_constraintBottom_toBottomOf="@+id/Login_Password_etv"
+                app:layout_constraintEnd_toEndOf="@+id/Login_Password_etv"
+                app:layout_constraintTop_toTopOf="@+id/Login_Password_etv"
+                tools:src="@drawable/hidden_eye" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -373,12 +388,20 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/Register_Email_etv" />
 
-            <Button
+            <ImageButton
                 android:id="@+id/Register_Toggle_Password_Visibility_btn"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
+                android:adjustViewBounds="true"
+                android:background="@android:color/transparent"
+                android:scaleType="centerInside"
+                android:scaleX="0.5"
+                android:scaleY="0.5"
+                android:src="@drawable/hidden_eye"
+                app:layout_constraintBottom_toBottomOf="@+id/Register_Password_etv"
                 app:layout_constraintEnd_toEndOf="@+id/Register_Password_etv"
-                app:layout_constraintTop_toTopOf="@+id/Register_Password_etv" />
+                app:layout_constraintTop_toTopOf="@+id/Register_Password_etv"
+                tools:src="@drawable/hidden_eye" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
