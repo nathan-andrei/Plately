@@ -92,15 +92,18 @@
                     android:background="@android:color/transparent"
                     app:srcCompat="@drawable/baseline_navigate_next_24" />
 
-                <ImageView
-                    android:id="@+id/imageViewSelected"
-                    android:layout_width="match_parent"
-                    android:layout_height="200dp"
-                    android:scaleType="centerCrop"
-                    android:layout_marginBottom="16dp"
-                    android:visibility="gone" />
-
             </LinearLayout>
+
+            <ImageView
+                android:id="@+id/imageViewSelected"
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:layout_gravity="start"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="16dp"
+                android:scaleType="centerCrop"
+                android:background="@android:color/darker_gray"
+                android:visibility="gone" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -161,6 +164,7 @@
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
                 android:gravity="center"
                 android:orientation="horizontal">
 
@@ -178,13 +182,13 @@
                     android:layout_width="60dp"
                     android:layout_height="wrap_content"
                     android:backgroundTint="#B0B0B0"
-                    android:inputType="numberDecimal"
-                    android:textSize="14sp" />
+                    android:inputType="numberDecimal" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
                 android:gravity="center"
                 android:orientation="horizontal">
 
@@ -193,7 +197,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:drawableStart="@drawable/baseline_access_time_24"
-                    android:text="Prep Time"
+                    android:text="Prep Time (in hr)"
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
@@ -201,16 +205,24 @@
                     android:id="@+id/editTextPrepTimeInput"
                     android:layout_width="50dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="16dp"
                     android:backgroundTint="#B0B0B0"
+                    android:hint="hr"
                     android:inputType="numberDecimal" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:gravity="center"
+                android:orientation="horizontal">
 
                 <TextView
                     android:id="@+id/textViewCookTimeInput"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:drawableStart="@drawable/baseline_access_time_24"
-                    android:text="Cook Time"
+                    android:text="Cook Time (in hr)"
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
@@ -219,12 +231,14 @@
                     android:layout_width="50dp"
                     android:layout_height="wrap_content"
                     android:backgroundTint="#B0B0B0"
+                    android:hint="hr"
                     android:inputType="numberDecimal" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
@@ -243,7 +257,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:backgroundTint="#B0B0B0"
-                    android:hint="Enter source"
+                    android:hint="Enter source (optional)"
                     android:inputType="text"
                     android:textSize="14sp" />
             </LinearLayout>
@@ -271,11 +285,11 @@
                 android:padding="12dp"
                 android:scrollbars="vertical" />
 
-
             <TextView
                 android:id="@+id/textViewInstructions"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
                 android:layout_marginBottom="8dp"
                 android:text="Instructions"
                 android:textSize="20sp"
@@ -285,6 +299,7 @@
                 android:id="@+id/editTextInstructionsInput"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
                 android:hint="Add each instruction on a new line"
                 android:inputType="textMultiLine"
                 android:lines="6"
@@ -297,6 +312,7 @@
                 android:id="@+id/textViewNotes"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
                 android:layout_marginBottom="8dp"
                 android:text="Notes"
                 android:textSize="20sp"
@@ -306,8 +322,9 @@
                 android:id="@+id/editTextNotesInput"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="32dp"
                 android:background="@drawable/edit_text_border"
-                android:hint="Add a note"
+                android:hint="Add a note (optional)"
                 android:inputType="text"
                 android:paddingHorizontal="12dp"
                 android:paddingVertical="8dp" />

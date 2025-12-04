@@ -303,8 +303,22 @@ public class RecipeDetailsActivity extends AppCompatActivity {
             }
         }
 
-        // source
-        binding.textViewSource.setText(recipe.getSource() != null ? recipe.getSource() : "No source available");
+        // only show source if not empty
+        if (recipe.getSource() != null && !recipe.getSource().trim().isEmpty()) {
+            binding.textViewSource.setText(recipe.getSource());
+            binding.textViewSource.setVisibility(View.VISIBLE);
+            View sourceLabel = findViewById(R.id.textViewSourceLabel);
+            if (sourceLabel != null) {
+                sourceLabel.setVisibility(View.VISIBLE);
+            }
+        } else {
+            // hide source label & body
+            binding.textViewSource.setVisibility(View.GONE);
+            View sourceLabel = findViewById(R.id.textViewSourceLabel);
+            if (sourceLabel != null) {
+                sourceLabel.setVisibility(View.GONE);
+            }
+        }
 
         // recipe author
         if (recipe.getAuthor() != null && recipe.getAuthor().get("uid") != null) {

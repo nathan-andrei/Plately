@@ -91,8 +91,50 @@ public class AddRecipeActivity extends AppCompatActivity {
         double prepTime = parseDouble(binding.editTextPrepTimeInput.getText().toString());
         double cookTime = parseDouble(binding.editTextCookTimeInput.getText().toString());
 
+        // Validation - everything required except source and notes
         if (recipeName.isEmpty()) {
-            binding.editTextRecipeName.setError("Recipe name required");
+            binding.editTextRecipeName.setError("Recipe name is required");
+            binding.editTextRecipeName.requestFocus();
+            return;
+        }
+
+        if (selectedImageUri == null) {
+            Toast.makeText(this, "Please select an image", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (selectedTags.isEmpty()) {
+            Toast.makeText(this, "Please select at least one tag", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (servesPax <= 0) {
+            binding.editTextServesInput.setError("Serves must be greater than 0");
+            binding.editTextServesInput.requestFocus();
+            return;
+        }
+
+        if (prepTime <= 0) {
+            binding.editTextPrepTimeInput.setError("Prep time must be greater than 0");
+            binding.editTextPrepTimeInput.requestFocus();
+            return;
+        }
+
+        if (cookTime <= 0) {
+            binding.editTextCookTimeInput.setError("Cook time must be greater than 0");
+            binding.editTextCookTimeInput.requestFocus();
+            return;
+        }
+
+        if (ingredientsInput.isEmpty()) {
+            binding.editTextIngredientsInput.setError("At least one ingredient is required");
+            binding.editTextIngredientsInput.requestFocus();
+            return;
+        }
+
+        if (stepsInput.isEmpty()) {
+            binding.editTextInstructionsInput.setError("At least one instruction step is required");
+            binding.editTextInstructionsInput.requestFocus();
             return;
         }
 
