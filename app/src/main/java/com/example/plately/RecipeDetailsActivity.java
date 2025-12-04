@@ -190,8 +190,30 @@ public class RecipeDetailsActivity extends AppCompatActivity {
     private void openEditRecipe() {
         Intent intent = new Intent(this, EditRecipeActivity.class);
         intent.putExtra("recipeId", recipeId);
-        startActivity(intent);
+        editRecipeLauncher.launch(intent);
     }
+
+    // launcher for editRecipeActivity to get result and refresh
+    private final ActivityResultLauncher<Intent> editRecipeLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == RESULT_OK) {
+                    // recipe update - reload the recipe details -
+                    if (recipeId != null) {
+                        db.collection("recipes").document(recipeId)
+                                .get()
+                                .addOnSuccessListener(snapshot -> {
+                                    if (snapshot.exists()) {
+                                        RecipeModel recipe = snapshot.toObject(RecipeModel.class);
+                                        if (recipe != null) {
+                                            displayRecipeDetails(recipe);
+                                        }
+                                    }
+                                });
+                    }
+                }
+            }
+    );
 
     // show alert before deletion
     private void confirmDelete() {
@@ -367,6 +389,54 @@ public class RecipeDetailsActivity extends AppCompatActivity {
                 Toast.makeText(this, "You can only select up to 3 images", Toast.LENGTH_SHORT).show();
             }
         });
+
+        // remove review image buttons
+        binding.buttonRemoveReviewImage1.setOnClickListener(v -> removeReviewImage(0));
+        binding.buttonRemoveReviewImage2.setOnClickListener(v -> removeReviewImage(1));
+        binding.buttonRemoveReviewImage3.setOnClickListener(v -> removeReviewImage(2));
+    }
+
+    private void removeReviewImage(int index) {
+        if (index >= 0 && index < selectedReviewImageUris.size()) {
+            selectedReviewImageUris.remove(index);
+            updateReviewImagePreviews();
+        }
+    }
+
+    private void updateReviewImagePreviews() {
+        // Show/hide the entire preview container based on whether there are images
+        if (selectedReviewImageUris.isEmpty()) {
+            binding.linearLayoutReviewImagePreviews.setVisibility(View.GONE);
+            return;
+        }
+
+        // Show the preview container
+        binding.linearLayoutReviewImagePreviews.setVisibility(View.VISIBLE);
+
+        // reset all image views
+        binding.imageViewReviewPreview1.setVisibility(View.GONE);
+        binding.imageViewReviewPreview2.setVisibility(View.GONE);
+        binding.imageViewReviewPreview3.setVisibility(View.GONE);
+        binding.buttonRemoveReviewImage1.setVisibility(View.GONE);
+        binding.buttonRemoveReviewImage2.setVisibility(View.GONE);
+        binding.buttonRemoveReviewImage3.setVisibility(View.GONE);
+
+        // show selected images
+        if (selectedReviewImageUris.size() > 0) {
+            Glide.with(this).load(selectedReviewImageUris.get(0)).into(binding.imageViewReviewPreview1);
+            binding.imageViewReviewPreview1.setVisibility(View.VISIBLE);
+            binding.buttonRemoveReviewImage1.setVisibility(View.VISIBLE);
+        }
+        if (selectedReviewImageUris.size() > 1) {
+            Glide.with(this).load(selectedReviewImageUris.get(1)).into(binding.imageViewReviewPreview2);
+            binding.imageViewReviewPreview2.setVisibility(View.VISIBLE);
+            binding.buttonRemoveReviewImage2.setVisibility(View.VISIBLE);
+        }
+        if (selectedReviewImageUris.size() > 2) {
+            Glide.with(this).load(selectedReviewImageUris.get(2)).into(binding.imageViewReviewPreview3);
+            binding.imageViewReviewPreview3.setVisibility(View.VISIBLE);
+            binding.buttonRemoveReviewImage3.setVisibility(View.VISIBLE);
+        }
     }
 
     // Image picker launcher for review gallery - using GetContent like ProfileActivity
@@ -376,7 +446,7 @@ public class RecipeDetailsActivity extends AppCompatActivity {
                 if (uri != null) {
                     if (selectedReviewImageUris.size() < 3) {
                         selectedReviewImageUris.add(uri);
-                        Toast.makeText(this, "Image added (" + selectedReviewImageUris.size() + "/3)", Toast.LENGTH_SHORT).show();
+                        updateReviewImagePreviews();
                     } else {
                         Toast.makeText(this, "You can only select up to 3 images", Toast.LENGTH_SHORT).show();
                     }
@@ -503,6 +573,7 @@ public class RecipeDetailsActivity extends AppCompatActivity {
                                             binding.ratingBarUser.setRating(0);
                                             binding.editTextReview.clearFocus();
                                             selectedReviewImageUris.clear();
+                                            updateReviewImagePreviews();
                                             loadReviews();
                                         })
                                         .addOnFailureListener(e -> {

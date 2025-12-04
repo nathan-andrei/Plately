@@ -155,6 +155,11 @@ public class AddRecipeActivity extends AppCompatActivity {
             return;
         }
 
+        if (selectedImageUris.isEmpty()) {
+            Toast.makeText(this, "Please select at least one image", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         if (servesPax <= 0) {
             binding.editTextServesInput.setError("Serves must be greater than 0");
             binding.editTextServesInput.requestFocus();
