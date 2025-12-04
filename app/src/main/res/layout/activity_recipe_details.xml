@@ -317,6 +317,16 @@
                         android:src="@drawable/baseline_camera_alt_24"
                         android:tint="#D32F2F" />
 
+                    <ImageButton
+                        android:id="@+id/imageBtnAddPhotoGallery"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:background="@android:color/transparent"
+                        android:contentDescription="Add photo review from gallery"
+                        android:src="@drawable/outline_image_24"
+                        android:tint="#D32F2F" />
+
                 </LinearLayout>
 
 

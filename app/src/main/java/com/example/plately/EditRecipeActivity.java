@@ -1,6 +1,5 @@
 package com.example.plately;
 
-import android.content.ContentResolver;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -49,7 +48,7 @@ public class EditRecipeActivity extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
-        storageRef = FirebaseStorage.getInstance().getReference("recipe_images");
+        storageRef = FirebaseStorage.getInstance().getReference("recipes");
 
         recipeId = getIntent().getStringExtra("recipeId");
         if (recipeId == null) {
@@ -67,11 +66,7 @@ public class EditRecipeActivity extends AppCompatActivity {
 
         binding.editButtonImageInput.setOnClickListener(v -> {
             if (getTotalImageCount() < 3) {
-                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                intent.setType("image/*");
-                intent.addCategory(Intent.CATEGORY_OPENABLE);
-                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false);
-                imagePickerLauncher.launch(intent);
+                imagePickerLauncher.launch("image/*");
             } else {
                 Toast.makeText(this, "You can only select up to 3 images", Toast.LENGTH_SHORT).show();
             }
@@ -83,30 +78,20 @@ public class EditRecipeActivity extends AppCompatActivity {
         binding.editButtonRemoveImage3.setOnClickListener(v -> removeImage(2));
     }
 
-    // image picker launcher - using OpenDocument for persistent access
-    ActivityResultLauncher<Intent> imagePickerLauncher =
-            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                    Uri uri = result.getData().getData();
-                    if (uri != null) {
-                        if (getTotalImageCount() < 3) {
-                            // Take persistent URI permission to ensure Firebase can access it
-                            try {
-                                final int takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION;
-                                ContentResolver resolver = getContentResolver();
-                                resolver.takePersistableUriPermission(uri, takeFlags);
-                                selectedImageUris.add(uri);
-                                updateImagePreviews();
-                            } catch (SecurityException e) {
-                                Log.e("EditRecipe", "Failed to take persistent URI permission", e);
-                                Toast.makeText(this, "Failed to access image. Please try again.", Toast.LENGTH_SHORT).show();
-                            }
-                        } else {
-                            Toast.makeText(this, "You can only select up to 3 images", Toast.LENGTH_SHORT).show();
-                        }
+    // image picker launcher - using GetContent like ProfileActivity
+    private final ActivityResultLauncher<String> imagePickerLauncher = registerForActivityResult(
+            new ActivityResultContracts.GetContent(),
+            uri -> {
+                if (uri != null) {
+                    if (getTotalImageCount() < 3) {
+                        selectedImageUris.add(uri);
+                        updateImagePreviews();
+                    } else {
+                        Toast.makeText(this, "You can only select up to 3 images", Toast.LENGTH_SHORT).show();
                     }
                 }
-            });
+            }
+    );
 
     private int getTotalImageCount() {
         return existingImageUrls.size() + selectedImageUris.size() - imagesToDelete.size();

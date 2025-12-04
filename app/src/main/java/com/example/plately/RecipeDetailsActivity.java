@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.PopupMenu;
 import android.widget.TextView;
@@ -28,6 +29,9 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.WriteBatch;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,11 +43,13 @@ public class RecipeDetailsActivity extends AppCompatActivity {
     private ActivityRecipeDetailsBinding binding;
     private FirebaseFirestore db;
     private FirebaseAuth auth;
+    private StorageReference storageRef;
     private String recipeId;
     private String authorId;
     private boolean isFavorite = false;
     private List<ReviewModel> reviewList = new ArrayList<>();
     private ReviewAdapter reviewAdapter;
+    private ArrayList<Uri> selectedReviewImageUris = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +61,7 @@ public class RecipeDetailsActivity extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
+        storageRef = FirebaseStorage.getInstance().getReference("reviews");
 
         setupRecyclerView();
 
@@ -351,7 +358,31 @@ public class RecipeDetailsActivity extends AppCompatActivity {
             Intent intent = new Intent(RecipeDetailsActivity.this, CameraActivity.class);
             reviewCameraLauncher.launch(intent);
         });
+
+        // gallery picker for reviews
+        binding.imageBtnAddPhotoGallery.setOnClickListener(v -> {
+            if (selectedReviewImageUris.size() < 3) {
+                reviewImagePickerLauncher.launch("image/*");
+            } else {
+                Toast.makeText(this, "You can only select up to 3 images", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
+
+    // Image picker launcher for review gallery - using GetContent like ProfileActivity
+    private final ActivityResultLauncher<String> reviewImagePickerLauncher = registerForActivityResult(
+            new ActivityResultContracts.GetContent(),
+            uri -> {
+                if (uri != null) {
+                    if (selectedReviewImageUris.size() < 3) {
+                        selectedReviewImageUris.add(uri);
+                        Toast.makeText(this, "Image added (" + selectedReviewImageUris.size() + "/3)", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(this, "You can only select up to 3 images", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+    );
 
     // submit and add review to db
     private void submitReview() {
@@ -374,6 +405,69 @@ public class RecipeDetailsActivity extends AppCompatActivity {
             return;
         }
 
+        // Upload images first, then save review with URLs
+        uploadReviewImagesAndSave(reviewText, rating, currentUserId);
+    }
+
+    private void uploadReviewImagesAndSave(String reviewText, float rating, String currentUserId) {
+        // If no images selected, save review with empty image list
+        if (selectedReviewImageUris.isEmpty()) {
+            saveReviewToFirestore(reviewText, rating, currentUserId, new ArrayList<>());
+            return;
+        }
+
+        // Upload all images to Firebase Storage
+        ArrayList<String> imageUrls = new ArrayList<>();
+        int totalImages = selectedReviewImageUris.size();
+        final int[] uploadedCount = {0};
+
+        for (int i = 0; i < selectedReviewImageUris.size(); i++) {
+            Uri imageUri = selectedReviewImageUris.get(i);
+            String imageFileName = "review_" + System.currentTimeMillis() + "_" + i + ".jpg";
+            StorageReference imageRef = storageRef.child(imageFileName);
+
+            UploadTask uploadTask = imageRef.putFile(imageUri);
+            int finalI = i;
+            uploadTask.addOnSuccessListener(taskSnapshot -> {
+                // get download URL
+                imageRef.getDownloadUrl().addOnSuccessListener(downloadUri -> {
+                    imageUrls.add(downloadUri.toString());
+                    uploadedCount[0]++;
+
+                    // upload images first then save review
+                    if (uploadedCount[0] == totalImages) {
+                        saveReviewToFirestore(reviewText, rating, currentUserId, imageUrls);
+                    }
+                }).addOnFailureListener(e -> {
+                    Log.e("RecipeDetails", "Failed to get download URL for review image " + finalI, e);
+                    e.printStackTrace();
+                    uploadedCount[0]++;
+                    Toast.makeText(this, "Failed to upload image " + (finalI + 1) + ": " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    // If all uploads are done (success or failure), still try to save with what we have
+                    if (uploadedCount[0] == totalImages && !imageUrls.isEmpty()) {
+                        saveReviewToFirestore(reviewText, rating, currentUserId, imageUrls);
+                    } else if (uploadedCount[0] == totalImages && imageUrls.isEmpty()) {
+                        // Save review without images if all uploads failed
+                        saveReviewToFirestore(reviewText, rating, currentUserId, new ArrayList<>());
+                    }
+                });
+            }).addOnFailureListener(e -> {
+                Log.e("RecipeDetails", "Failed to upload review image " + finalI + " to storage", e);
+                e.printStackTrace();
+                uploadedCount[0]++;
+                Toast.makeText(this, "Failed to upload image " + (finalI + 1) + " to storage: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                // If all uploads are done (success or failure), still try to save with what we have
+                if (uploadedCount[0] == totalImages && !imageUrls.isEmpty()) {
+                    saveReviewToFirestore(reviewText, rating, currentUserId, imageUrls);
+                } else if (uploadedCount[0] == totalImages && imageUrls.isEmpty()) {
+                    // Save review without images if all uploads failed
+                    saveReviewToFirestore(reviewText, rating, currentUserId, new ArrayList<>());
+                }
+            });
+        }
+    }
+
+    private void saveReviewToFirestore(String reviewText, float rating, String currentUserId, ArrayList<String> imageUrls) {
         // author reference
         DocumentReference authorRef = db.collection("users").document(currentUserId);
         Map<String, Object> authorMap = new HashMap<>();
@@ -388,43 +482,62 @@ public class RecipeDetailsActivity extends AppCompatActivity {
         reviewMap.put("rating", rating);
         reviewMap.put("text", reviewText);
         reviewMap.put("recipeRef", recipeRef);
+        reviewMap.put("reviewImages", imageUrls);
 
         // add review to reviews collection
         db.collection("reviews").add(reviewMap)
                 .addOnSuccessListener(reviewDocRef -> {
+                    Log.d("RecipeDetails", "Review created with ID: " + reviewDocRef.getId());
                     // add review reference to user createdReviews array
                     authorRef.update("createdReviews", FieldValue.arrayUnion(reviewDocRef))
                             .addOnSuccessListener(aVoid -> {
-                                // add reviews to the recipe's review array
+                                Log.d("RecipeDetails", "Added review to user's createdReviews");
+                                // add review reference to the recipe's reviews array
                                 recipeRef.update("reviews", FieldValue.arrayUnion(reviewDocRef))
                                         .addOnSuccessListener(aVoid2 -> {
+                                            Log.d("RecipeDetails", "Successfully added review reference to recipe");
                                             Toast.makeText(this, "Review submitted successfully!", Toast.LENGTH_SHORT).show();
 
                                             // after adding reset the inputs
                                             binding.editTextReview.setText("");
                                             binding.ratingBarUser.setRating(0);
                                             binding.editTextReview.clearFocus();
+                                            selectedReviewImageUris.clear();
                                             loadReviews();
                                         })
                                         .addOnFailureListener(e -> {
-                                            Toast.makeText(this, "Failed to update recipe with review", Toast.LENGTH_SHORT).show();
+                                            Log.e("RecipeDetails", "Failed to update recipe with review reference", e);
+                                            Toast.makeText(this, "Failed to update recipe with review: " + e.getMessage(), Toast.LENGTH_LONG).show();
                                             loadReviews();
                                         });
                             })
                             .addOnFailureListener(e -> {
-                                Toast.makeText(this, "Failed to add review to user profile", Toast.LENGTH_SHORT).show();
-                                // try to update still and refresh
-                                recipeRef.update("reviews", FieldValue.arrayUnion(reviewDocRef));
-                                loadReviews();
+                                Log.e("RecipeDetails", "Failed to add review to user profile", e);
+                                Toast.makeText(this, "Failed to add review to user profile: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                                // try to update recipe still and refresh
+                                recipeRef.update("reviews", FieldValue.arrayUnion(reviewDocRef))
+                                        .addOnSuccessListener(aVoid -> {
+                                            Log.d("RecipeDetails", "Added review to recipe after user update failed");
+                                            loadReviews();
+                                        })
+                                        .addOnFailureListener(e2 -> {
+                                            Log.e("RecipeDetails", "Failed to add review to recipe in fallback", e2);
+                                            loadReviews();
+                                        });
                             });
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Failed to submit review. Please try again.", Toast.LENGTH_SHORT).show();
+                    Log.e("RecipeDetails", "Failed to create review document", e);
+                    Toast.makeText(this, "Failed to submit review: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 });
     }
 
     private void setupRecyclerView() {
         reviewAdapter = new ReviewAdapter(reviewList);
+        reviewAdapter.setDeleteListener(reviewId -> {
+            // Refresh reviews after deletion
+            loadReviews();
+        });
         binding.recyclerViewReviews.setAdapter(reviewAdapter);
         binding.recyclerViewReviews.setLayoutManager(new LinearLayoutManager(this));
     }
@@ -448,6 +561,8 @@ public class RecipeDetailsActivity extends AppCompatActivity {
                     for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
                         ReviewModel review = doc.toObject(ReviewModel.class);
                         if (review != null) {
+                            // Set the document ID for deletion purposes
+                            review.setReviewId(doc.getId());
                             reviewList.add(review);
                             totalRating += review.getRating();
                             reviewCount++;
