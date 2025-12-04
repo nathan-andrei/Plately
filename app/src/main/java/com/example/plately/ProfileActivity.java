@@ -6,6 +6,8 @@ import static android.view.View.VISIBLE;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -34,6 +36,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.canhub.cropper.CropImageView;
+import com.example.plately.databinding.DialogueEditNameBinding;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -235,8 +238,7 @@ public class ProfileActivity extends AppCompatActivity {
             return true;
         }
         else if(item.getItemId() == R.id.Profile_Edit_Name){
-            //Intent i = new Intent(ProfileActivity.this, SettingsActivity.class);
-            //startActivity(i);
+            editDialog().show();
             return true;
         }
         else if(item.getItemId() == R.id.Profile_LogOut){
@@ -395,5 +397,44 @@ public class ProfileActivity extends AppCompatActivity {
     private void updateProfilePicture(String downloadUri){
         Glide.with(this).load(downloadUri).into(profileImage);
         dialog.dismiss();        
+    }
+    
+    //Function for the edit username Dialog
+    private Dialog editDialog(){
+        DialogueEditNameBinding binding = DialogueEditNameBinding.inflate(getLayoutInflater());
+        binding.nameETV.setText(displayName.getText().toString().trim()); //Set the etvs initial text to the current name
+        
+        return new AlertDialog.Builder(this)
+                .setPositiveButton("Save", (dialog, which) -> {
+                    //Wait for the db to finish the update
+                    this.builder.setMessage("Please wait...");
+                    this.dialog = this.builder.create();
+                    this.dialog.show();
+                    
+                    String newName = binding.nameETV.getText().toString().trim();
+                    
+                    db.collection("users")
+                            .document(dbAuth.getCurrentUser().getUid())//Get the current user's doc
+                            .update(new HashMap<>(Map.of("username", newName)))//Update the username field with the new name
+                            .addOnCompleteListener(this, updateUserNameTask ->{
+                               if(updateUserNameTask.isSuccessful()){
+                                   this.dialog.dismiss();
+                                   displayName.setText(newName); //rerender the name in the profile view
+                                   
+                                   Log.d("[Firestore] Username Update", "Sucesffully updated name of user!");
+                                   Toast.makeText(this, "Successfully changed name", Toast.LENGTH_SHORT).show();
+                               }
+                               else{
+                                   this.dialog.dismiss();
+                                   Log.w("[Firestore] Username Update", "Failed to update name of user!");
+                                   Log.w("[Firestore] Username Update", updateUserNameTask.getException());
+                                   Toast.makeText(this, "Failed to edit name, please try again later.", Toast.LENGTH_LONG).show();
+                               }
+                            });
+                    
+                })
+                .setNegativeButton("Cancel", (dialog, which) -> {})
+                .setView(binding.getRoot())
+                .create();
     }
 }
