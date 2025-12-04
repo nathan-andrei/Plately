@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.PopupMenu;
@@ -50,6 +52,12 @@ public class RecipeDetailsActivity extends AppCompatActivity {
     private List<ReviewModel> reviewList = new ArrayList<>();
     private ReviewAdapter reviewAdapter;
     private ArrayList<Uri> selectedReviewImageUris = new ArrayList<>();
+    
+    // slideshow stuff
+    private Handler slideshowHandler;
+    private Runnable slideshowRunnable;
+    private ArrayList<String> recipeImageUrls = new ArrayList<>();
+    private int currentImageIndex = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -284,12 +292,26 @@ public class RecipeDetailsActivity extends AppCompatActivity {
         // recipe name
         binding.textViewRecipeName.setText(recipe.getRecipeName() != null ? recipe.getRecipeName() : "Untitled");
 
+        // stop any existing slideshow
+        stopSlideshow();
+
+        // get recipe images
+        recipeImageUrls = recipe.getRecipeImages();
+        if (recipeImageUrls == null) {
+            recipeImageUrls = new ArrayList<>();
+        }
+
         // image - use first image from recipeImages array, with fallback to recipeImage
         String imageUrl = recipe.getFirstImage();
         if (imageUrl != null && !imageUrl.isEmpty()) {
             Glide.with(this)
                     .load(imageUrl)
                     .into(binding.imageViewRecipePhoto);
+        }
+
+        // start slideshow if there are 2 or more images
+        if (recipeImageUrls.size() > 1) {
+            startSlideshow();
         }
 
         // description
@@ -723,6 +745,57 @@ public class RecipeDetailsActivity extends AppCompatActivity {
                 return hours + " hr " + mins + " min";
             }
         }
+    }
+
+    // start slideshow for recipe images
+    private void startSlideshow() {
+        if (recipeImageUrls == null || recipeImageUrls.size() <= 1) {
+            return;
+        }
+
+        stopSlideshow(); // stop any slideshow
+        currentImageIndex = 0; // start at first image (default)
+        slideshowHandler = new Handler(Looper.getMainLooper());
+
+        slideshowRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (recipeImageUrls != null && !recipeImageUrls.isEmpty()) {
+                    // cycle to next image
+                    currentImageIndex = (currentImageIndex + 1) % recipeImageUrls.size();
+                    String imageUrl = recipeImageUrls.get(currentImageIndex);
+                    
+                    if (imageUrl != null && !imageUrl.isEmpty()) {
+                        Glide.with(RecipeDetailsActivity.this)
+                                .load(imageUrl)
+                                .into(binding.imageViewRecipePhoto);
+                    }
+
+                    // schedule next image change (4 seconds)
+                    if (slideshowHandler != null) {
+                        slideshowHandler.postDelayed(this, 4000);
+                    }
+                }
+            }
+        };
+
+        // start the slideshow after 4 seconds 
+        slideshowHandler.postDelayed(slideshowRunnable, 4000);
+    }
+
+    // stop slideshow
+    private void stopSlideshow() {
+        if (slideshowHandler != null && slideshowRunnable != null) {
+            slideshowHandler.removeCallbacks(slideshowRunnable);
+            slideshowHandler = null;
+            slideshowRunnable = null;
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopSlideshow();
     }
 
 }
