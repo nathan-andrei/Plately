@@ -118,13 +118,13 @@ public class MyViewHolder extends RecyclerView.ViewHolder {
                 recipe.getRecipeDescription() != null ? recipe.getRecipeDescription() : ""
         );
 
-        // image
-        if (recipe.getRecipeImage() != null && !recipe.getRecipeImage().isEmpty()) {
-
-            Log.d("RecipeImage", "Loading image URL: " + recipe.getRecipeImage());
+        // image, use first image from recipeImages array, with fallback to recipeImage
+        String imageUrl = recipe.getFirstImage();
+        if (imageUrl != null && !imageUrl.isEmpty()) {
+            Log.d("RecipeImage", "Loading image URL: " + imageUrl);
 
             Glide.with(binding.imageViewFood.getContext())
-                    .load(recipe.getRecipeImage())
+                    .load(imageUrl)
                     .into(binding.imageViewFood);
         }
 

@@ -134,7 +134,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text=""
+                android:text="Selected tags will show here."
                 android:textColor="#757575"
                 android:textSize="14sp" />
 

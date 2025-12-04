@@ -19,6 +19,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.bumptech.glide.Glide;
 import com.example.plately.databinding.ActivityRecipeDetailsBinding;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
@@ -100,10 +101,16 @@ public class RecipeDetailsActivity extends AppCompatActivity {
                         return;
                     }
 
-                    authorId = recipe.getAuthor().get("uid").getId();
-                    String currentUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                    // Safely get author ID
+                    if (recipe.getAuthor() != null && recipe.getAuthor().get("uid") != null) {
+                        authorId = recipe.getAuthor().get("uid").getId();
+                    }
+                    String currentUid = FirebaseAuth.getInstance().getCurrentUser() != null ? 
+                            FirebaseAuth.getInstance().getCurrentUser().getUid() : null;
 
-                    applyAuthorVisibility(authorId, currentUid);
+                    if (authorId != null && currentUid != null) {
+                        applyAuthorVisibility(authorId, currentUid);
+                    }
 
                     displayRecipeDetails(recipe);
                     loadReviews();
@@ -247,6 +254,14 @@ public class RecipeDetailsActivity extends AppCompatActivity {
     private void displayRecipeDetails(RecipeModel recipe) {
         // recipe name
         binding.textViewRecipeName.setText(recipe.getRecipeName() != null ? recipe.getRecipeName() : "Untitled");
+
+        // image - use first image from recipeImages array, with fallback to recipeImage
+        String imageUrl = recipe.getFirstImage();
+        if (imageUrl != null && !imageUrl.isEmpty()) {
+            Glide.with(this)
+                    .load(imageUrl)
+                    .into(binding.imageViewRecipePhoto);
+        }
 
         // description
         binding.textViewFullDescription.setText(recipe.getRecipeDescription() != null ? recipe.getRecipeDescription() : "No description available");

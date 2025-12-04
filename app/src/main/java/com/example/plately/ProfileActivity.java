@@ -166,7 +166,12 @@ public class ProfileActivity extends AppCompatActivity {
         setUpWidgets();
         setUpListeners();
         //Tried to change action bar text to white, did not work...
-        getSupportActionBar().setTitle(Html.fromHtml("<font color='FFFFFF'>Your Profile</font>"));
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            getSupportActionBar().setTitle(Html.fromHtml("<font color='FFFFFF'>Your Profile</font>", Html.FROM_HTML_MODE_LEGACY));
+        } else {
+            //noinspection deprecation
+            getSupportActionBar().setTitle(Html.fromHtml("<font color='FFFFFF'>Your Profile</font>"));
+        }
 
         //Set up the bottom nav bar buttons
         findViewById(R.id.buttonAddRecipe).setOnClickListener(v -> {

@@ -4,6 +4,7 @@ import com.google.firebase.firestore.DocumentReference;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class RecipeModel {
     private String id;
@@ -16,6 +17,7 @@ public class RecipeModel {
     private double prepTime;
     private double cookTime;
     private String recipeImage;
+    private ArrayList<String> recipeImages;
     private ArrayList<String> tags;
     private boolean isFavorite = false;
     private HashMap<String, DocumentReference> author;
@@ -65,6 +67,7 @@ public class RecipeModel {
     public double getPrepTime() { return prepTime; }
     public double getCookTime() { return cookTime; }
     public String getRecipeImage() { return recipeImage; }
+    public ArrayList<String> getRecipeImages() { return recipeImages; }
     public ArrayList<String> getTags() { return tags; }
     public boolean isFavorite() { return isFavorite; }
     public HashMap<String, DocumentReference> getAuthor() { return author; }
@@ -75,4 +78,30 @@ public class RecipeModel {
     public void setFavorite(boolean favorite) { this.isFavorite = favorite; }
     public void setId(String id) { this.id = id; }
     public void setAuthor(HashMap<String, DocumentReference> author) { this.author = author; }
-    public void setRecipeImage(String recipeImage) { this.recipeImage = recipeImage; }}
+    public void setRecipeImage(String recipeImage) { this.recipeImage = recipeImage; }
+    public void setRecipeImages(ArrayList<String> recipeImages) { this.recipeImages = recipeImages; }
+    public void setRecipeName(String recipeName) { this.recipeName = recipeName; }
+    public void setSource(String source) { this.source = source; }
+    public void setRecipeDescription(String recipeDescription) { this.recipeDescription = recipeDescription; }
+    public void setIngredients(ArrayList<String> ingredients) { this.ingredients = ingredients; }
+    public void setInstructions(String instructions) { this.instructions = instructions; }
+    public void setServesPax(double servesPax) { this.servesPax = servesPax; }
+    public void setPrepTime(double prepTime) { this.prepTime = prepTime; }
+    public void setCookTime(double cookTime) { this.cookTime = cookTime; }
+    public void setTags(ArrayList<String> tags) { this.tags = tags; }
+    
+    // Helper method to get the first image from recipeImages array, with fallback to recipeImage
+    public String getFirstImage() {
+        try {
+            if (recipeImages != null && !recipeImages.isEmpty()) {
+                String firstImage = recipeImages.get(0);
+                if (firstImage != null && !firstImage.trim().isEmpty()) {
+                    return firstImage;
+                }
+            }
+        } catch (Exception e) {
+            // toast or something
+        }
+        return recipeImage;
+    }
+}
