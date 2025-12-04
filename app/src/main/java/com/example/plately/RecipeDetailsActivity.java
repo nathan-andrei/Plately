@@ -19,6 +19,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.bumptech.glide.Glide;
 import com.example.plately.databinding.ActivityRecipeDetailsBinding;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
@@ -39,6 +40,7 @@ public class RecipeDetailsActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private FirebaseAuth auth;
     private String recipeId;
+    private String authorId;
     private boolean isFavorite = false;
     private List<ReviewModel> reviewList = new ArrayList<>();
     private ReviewAdapter reviewAdapter;
@@ -99,10 +101,16 @@ public class RecipeDetailsActivity extends AppCompatActivity {
                         return;
                     }
 
-                    String authorId = recipe.getAuthor().get("uid").getId();
-                    String currentUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                    // Safely get author ID
+                    if (recipe.getAuthor() != null && recipe.getAuthor().get("uid") != null) {
+                        authorId = recipe.getAuthor().get("uid").getId();
+                    }
+                    String currentUid = FirebaseAuth.getInstance().getCurrentUser() != null ? 
+                            FirebaseAuth.getInstance().getCurrentUser().getUid() : null;
 
-                    applyAuthorVisibility(authorId, currentUid);
+                    if (authorId != null && currentUid != null) {
+                        applyAuthorVisibility(authorId, currentUid);
+                    }
 
                     displayRecipeDetails(recipe);
                     loadReviews();
@@ -247,16 +255,24 @@ public class RecipeDetailsActivity extends AppCompatActivity {
         // recipe name
         binding.textViewRecipeName.setText(recipe.getRecipeName() != null ? recipe.getRecipeName() : "Untitled");
 
+        // image - use first image from recipeImages array, with fallback to recipeImage
+        String imageUrl = recipe.getFirstImage();
+        if (imageUrl != null && !imageUrl.isEmpty()) {
+            Glide.with(this)
+                    .load(imageUrl)
+                    .into(binding.imageViewRecipePhoto);
+        }
+
         // description
         binding.textViewFullDescription.setText(recipe.getRecipeDescription() != null ? recipe.getRecipeDescription() : "No description available");
 
         // num servings
         binding.textViewServings.setText("Servings: " + (int) recipe.getServesPax());
 
-        // prep & cook time
-        binding.textViewPrepTime.setText("Prep time: " + (int) recipe.getPrepTime() + " min");
-        binding.textViewCookingTime.setText("Cooking time: " + (int) recipe.getCookTime() + " min");
-        binding.textViewTotalTime.setText("Total time: " + (int)(recipe.getPrepTime() + recipe.getCookTime()) + " min");
+        // prep & cook time (formatted as hours and minutes)
+        binding.textViewPrepTime.setText("Prep time: " + formatTimeInHoursAndMinutes(recipe.getPrepTime()));
+        binding.textViewCookingTime.setText("Cooking time: " + formatTimeInHoursAndMinutes(recipe.getCookTime()));
+        binding.textViewTotalTime.setText("Total time: " + formatTimeInHoursAndMinutes(recipe.getPrepTime() + recipe.getCookTime()));
 
         // tags
         if (recipe.getTags() != null && !recipe.getTags().isEmpty()) {
@@ -302,8 +318,22 @@ public class RecipeDetailsActivity extends AppCompatActivity {
             }
         }
 
-        // source
-        binding.textViewSource.setText(recipe.getSource() != null ? recipe.getSource() : "No source available");
+        // only show source if not empty
+        if (recipe.getSource() != null && !recipe.getSource().trim().isEmpty()) {
+            binding.textViewSource.setText(recipe.getSource());
+            binding.textViewSource.setVisibility(View.VISIBLE);
+            View sourceLabel = findViewById(R.id.textViewSourceLabel);
+            if (sourceLabel != null) {
+                sourceLabel.setVisibility(View.VISIBLE);
+            }
+        } else {
+            // hide source label & body
+            binding.textViewSource.setVisibility(View.GONE);
+            View sourceLabel = findViewById(R.id.textViewSourceLabel);
+            if (sourceLabel != null) {
+                sourceLabel.setVisibility(View.GONE);
+            }
+        }
 
         // recipe author
         if (recipe.getAuthor() != null && recipe.getAuthor().get("uid") != null) {
@@ -333,8 +363,16 @@ public class RecipeDetailsActivity extends AppCompatActivity {
             return;
         }
 
+        if (rating == 0) {
+            Toast.makeText(this, "Please select a rating", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         String currentUserId = auth.getUid();
-        if (currentUserId == null) return;
+        if (currentUserId == null) {
+            Toast.makeText(this, "You must be logged in to submit a review", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         // author reference
         DocumentReference authorRef = db.collection("users").document(currentUserId);
@@ -354,21 +392,35 @@ public class RecipeDetailsActivity extends AppCompatActivity {
         // add review to reviews collection
         db.collection("reviews").add(reviewMap)
                 .addOnSuccessListener(reviewDocRef -> {
-
-                    // add reviews to the recipe's review array
-                    recipeRef.update("reviews", FieldValue.arrayUnion(reviewDocRef))
+                    // add review reference to user createdReviews array
+                    authorRef.update("createdReviews", FieldValue.arrayUnion(reviewDocRef))
                             .addOnSuccessListener(aVoid -> {
-                                Toast.makeText(this, "Review added!", Toast.LENGTH_SHORT).show();
+                                // add reviews to the recipe's review array
+                                recipeRef.update("reviews", FieldValue.arrayUnion(reviewDocRef))
+                                        .addOnSuccessListener(aVoid2 -> {
+                                            Toast.makeText(this, "Review submitted successfully!", Toast.LENGTH_SHORT).show();
 
-                                // after adding reset the inputs
-                                binding.editTextReview.setText("");
-                                binding.ratingBarUser.setRating(0);
+                                            // after adding reset the inputs
+                                            binding.editTextReview.setText("");
+                                            binding.ratingBarUser.setRating(0);
+                                            binding.editTextReview.clearFocus();
+                                            loadReviews();
+                                        })
+                                        .addOnFailureListener(e -> {
+                                            Toast.makeText(this, "Failed to update recipe with review", Toast.LENGTH_SHORT).show();
+                                            loadReviews();
+                                        });
+                            })
+                            .addOnFailureListener(e -> {
+                                Toast.makeText(this, "Failed to add review to user profile", Toast.LENGTH_SHORT).show();
+                                // try to update still and refresh
+                                recipeRef.update("reviews", FieldValue.arrayUnion(reviewDocRef));
                                 loadReviews();
                             });
-
                 })
-                .addOnFailureListener(e ->
-                        Toast.makeText(this, "Failed to add review", Toast.LENGTH_SHORT).show());
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Failed to submit review. Please try again.", Toast.LENGTH_SHORT).show();
+                });
     }
 
     private void setupRecyclerView() {
@@ -381,6 +433,7 @@ public class RecipeDetailsActivity extends AppCompatActivity {
         if (recipeId == null) return;
 
         DocumentReference recipeRef = db.collection("recipes").document(recipeId);
+        String currentUserId = auth.getUid();
 
         db.collection("reviews")
                 .whereEqualTo("recipeRef", recipeRef)
@@ -388,12 +441,71 @@ public class RecipeDetailsActivity extends AppCompatActivity {
                     if (error != null || querySnapshot == null) return;
 
                     reviewList.clear();
+                    float totalRating = 0;
+                    int reviewCount = 0;
+                    boolean userHasReview = false;
+
                     for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
                         ReviewModel review = doc.toObject(ReviewModel.class);
-                        if (review != null) reviewList.add(review);
+                        if (review != null) {
+                            reviewList.add(review);
+                            totalRating += review.getRating();
+                            reviewCount++;
+
+                            // Check if current user already has a review
+                            if (currentUserId != null && review.getAuthor() != null && 
+                                review.getAuthor().get("uid") != null &&
+                                review.getAuthor().get("uid").getId().equals(currentUserId)) {
+                                userHasReview = true;
+                            }
+                        }
                     }
                     reviewAdapter.notifyDataSetChanged();
+
+                    // get and display overall rating
+                    updateOverallRating(totalRating, reviewCount);
+
+                    // check if review section should be disabled
+                    checkAndDisableReviewSection(userHasReview);
                 });
+    }
+
+    private void updateOverallRating(float totalRating, int reviewCount) {
+        if (reviewCount == 0) {
+            binding.ratingBarOverall.setRating(0);
+            return;
+        }
+
+        float averageRating = totalRating / reviewCount;
+        
+        // If x.0 - x.4, round down = x, if x.5 - x.9, show x.5 stars
+        float displayRating;
+        int wholePart = (int) averageRating;
+        float decimalPart = averageRating - wholePart;
+        
+        if (decimalPart >= 0.5f) {
+            displayRating = wholePart + 0.5f;
+        } else {
+            displayRating = wholePart;
+        }
+        
+        binding.ratingBarOverall.setRating(displayRating);
+    }
+
+    // disable review section if user is author or already has a review
+    private void checkAndDisableReviewSection(boolean userHasReview) {
+        if (recipeId == null || authorId == null) return;
+
+        String currentUserId = auth.getUid();
+        if (currentUserId == null) return;
+
+        boolean isAuthor = currentUserId.equals(authorId);
+
+        if (isAuthor || userHasReview) {
+            binding.reviewSectionContainer.setVisibility(View.GONE);
+        } else {
+            binding.reviewSectionContainer.setVisibility(View.VISIBLE);
+        }
     }
 
     // camera launcher
@@ -410,5 +522,21 @@ public class RecipeDetailsActivity extends AppCompatActivity {
                 }
             }
     );
+
+    // format minutes as hours and minutes
+    private String formatTimeInHoursAndMinutes(double minutes) {
+        int totalMinutes = (int) minutes;
+        if (totalMinutes < 60) {
+            return totalMinutes + " min";
+        } else {
+            int hours = totalMinutes / 60;
+            int mins = totalMinutes % 60;
+            if (mins == 0) {
+                return hours + " hr";
+            } else {
+                return hours + " hr " + mins + " min";
+            }
+        }
+    }
 
 }

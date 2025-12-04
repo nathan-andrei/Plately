@@ -58,6 +58,14 @@ public class MainActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
 
+        // Check if user is logged in, redirect to login if not
+        if (auth.getCurrentUser() == null) {
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(intent);
+            finish();
+            return;
+        }
+
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
@@ -90,8 +98,20 @@ public class MainActivity extends AppCompatActivity {
 
         //Profile button
         binding.buttonProfile.setOnClickListener(v -> {
+            if (auth.getCurrentUser() == null) {
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                startActivity(intent);
+                finish();
+                return;
+            }
+            
             String uid = auth.getCurrentUser().getUid();
-            if (uid == null) return;
+            if (uid == null) {
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                startActivity(intent);
+                finish();
+                return;
+            }
 
             Log.d("[Firestore] Profile: Access", "profile pressed");
             Log.d("[Firestore] Profile: Access", "Current UID:" + uid);
@@ -177,6 +197,7 @@ public class MainActivity extends AppCompatActivity {
 
     // once recipe is saved update db
     private void saveRecipeToSaved(String recipeId) {
+        if (auth.getCurrentUser() == null) return;
         String uid = auth.getUid();
         if (uid == null) return;
 
@@ -192,6 +213,7 @@ public class MainActivity extends AppCompatActivity {
 
     // remove recipe from saved under users collection
     private void removeRecipeFromSaved(String recipeId) {
+        if (auth.getCurrentUser() == null) return;
         String uid = auth.getUid();
         if (uid == null) return;
 
@@ -209,13 +231,41 @@ public class MainActivity extends AppCompatActivity {
 
     // retrieve recipes from database
     private void getRecipesFromDb() {
+        if (auth.getCurrentUser() == null) {
+            // User not logged in, redirect to login
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(intent);
+            finish();
+            return;
+        }
+        
         String uid = auth.getUid();
-        if (uid == null) return;
+        if (uid == null) {
+            // UID is null, redirect to login
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(intent);
+            finish();
+            return;
+        }
 
         // get user's saved recipes to load correct favorite button state
         db.collection("users").document(uid)
                 .addSnapshotListener((userDoc, e) -> {
-                    if (e != null || userDoc == null) return;
+                    if (e != null) {
+                        Log.e("MainActivity", "Error getting user document", e);
+                        // If user document doesn't exist or error, user might need to login
+                        if (e.getMessage() != null && e.getMessage().contains("PERMISSION_DENIED")) {
+                            // Permission denied, redirect to login
+                            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                            startActivity(intent);
+                            finish();
+                        }
+                        return;
+                    }
+                    if (userDoc == null || !userDoc.exists()) {
+                        // User document doesn't exist, might need to login
+                        return;
+                    }
 
                     //Add a suppress warning here for an unchecked Type reference, it works so :shrug:
                     @SuppressWarnings("unchecked")
@@ -232,16 +282,32 @@ public class MainActivity extends AppCompatActivity {
         // get all recipes from recipes collection
         db.collection("recipes")
                 .addSnapshotListener((querySnapshot, ex) -> {
-                    if (ex != null || querySnapshot == null) return;
+                    if (ex != null) {
+                        Log.e("MainActivity", "Error getting recipes", ex);
+                        // If permission denied, redirect to login
+                        if (ex.getMessage() != null && ex.getMessage().contains("PERMISSION_DENIED")) {
+                            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                            startActivity(intent);
+                            finish();
+                        }
+                        return;
+                    }
+                    if (querySnapshot == null) return;
 
                     // list one by one using recycler
                     List<RecipeModel> newRecipes = new ArrayList<>();
                     for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
-                        RecipeModel recipeModel = doc.toObject(RecipeModel.class);
-                        if (recipeModel == null) continue;
-                        recipeModel.setId(doc.getId());
-                        recipeModel.setFavorite(savedRecipeIds.contains(doc.getId()));
-                        newRecipes.add(recipeModel);
+                        try {
+                            RecipeModel recipeModel = doc.toObject(RecipeModel.class);
+                            if (recipeModel == null) continue;
+                            recipeModel.setId(doc.getId());
+                            recipeModel.setFavorite(savedRecipeIds.contains(doc.getId()));
+                            newRecipes.add(recipeModel);
+                        } catch (Exception e) {
+                            Log.e("MainActivity", "Error deserializing recipe " + doc.getId() + ": " + e.getMessage(), e);
+                            // Skip this recipe if it can't be deserialized
+                            continue;
+                        }
                     }
 
                     // handle deletions in main menu UI

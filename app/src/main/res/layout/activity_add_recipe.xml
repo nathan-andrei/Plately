@@ -81,7 +81,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Image"
+                    android:text="Images (up to 3, optional)"
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
@@ -92,14 +92,92 @@
                     android:background="@android:color/transparent"
                     app:srcCompat="@drawable/baseline_navigate_next_24" />
 
-                <ImageView
-                    android:id="@+id/imageViewSelected"
-                    android:layout_width="match_parent"
-                    android:layout_height="200dp"
-                    android:scaleType="centerCrop"
-                    android:layout_marginBottom="16dp"
-                    android:visibility="gone" />
+            </LinearLayout>
 
+            <!-- Three side-by-side image preview boxes -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="16dp"
+                android:orientation="horizontal"
+                android:weightSum="3">
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="120dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="4dp"
+                    android:background="@android:color/darker_gray">
+
+                    <ImageView
+                        android:id="@+id/imageViewSelected1"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        android:visibility="gone" />
+
+                    <ImageButton
+                        android:id="@+id/buttonRemoveImage1"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="top|end"
+                        android:layout_margin="4dp"
+                        android:background="@android:color/transparent"
+                        android:src="@android:drawable/ic_menu_close_clear_cancel"
+                        android:visibility="gone" />
+                </FrameLayout>
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="120dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="4dp"
+                    android:background="@android:color/darker_gray">
+
+                    <ImageView
+                        android:id="@+id/imageViewSelected2"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        android:visibility="gone" />
+
+                    <ImageButton
+                        android:id="@+id/buttonRemoveImage2"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="top|end"
+                        android:layout_margin="4dp"
+                        android:background="@android:color/transparent"
+                        android:src="@android:drawable/ic_menu_close_clear_cancel"
+                        android:visibility="gone" />
+                </FrameLayout>
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="120dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="4dp"
+                    android:background="@android:color/darker_gray">
+
+                    <ImageView
+                        android:id="@+id/imageViewSelected3"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        android:visibility="gone" />
+
+                    <ImageButton
+                        android:id="@+id/buttonRemoveImage3"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="top|end"
+                        android:layout_margin="4dp"
+                        android:background="@android:color/transparent"
+                        android:src="@android:drawable/ic_menu_close_clear_cancel"
+                        android:visibility="gone" />
+                </FrameLayout>
             </LinearLayout>
 
             <LinearLayout
@@ -131,7 +209,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text=""
+                android:text="Selected tags will show here."
                 android:textColor="#757575"
                 android:textSize="14sp" />
 
@@ -161,6 +239,7 @@
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
                 android:gravity="center"
                 android:orientation="horizontal">
 
@@ -178,13 +257,13 @@
                     android:layout_width="60dp"
                     android:layout_height="wrap_content"
                     android:backgroundTint="#B0B0B0"
-                    android:inputType="numberDecimal"
-                    android:textSize="14sp" />
+                    android:inputType="numberDecimal" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
                 android:gravity="center"
                 android:orientation="horizontal">
 
@@ -193,7 +272,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:drawableStart="@drawable/baseline_access_time_24"
-                    android:text="Prep Time"
+                    android:text="Prep Time (in min)"
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
@@ -201,16 +280,24 @@
                     android:id="@+id/editTextPrepTimeInput"
                     android:layout_width="50dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="16dp"
                     android:backgroundTint="#B0B0B0"
-                    android:inputType="numberDecimal" />
+                    android:hint="min"
+                    android:inputType="number" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:gravity="center"
+                android:orientation="horizontal">
 
                 <TextView
                     android:id="@+id/textViewCookTimeInput"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:drawableStart="@drawable/baseline_access_time_24"
-                    android:text="Cook Time"
+                    android:text="Cook Time (in min)"
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
@@ -219,12 +306,14 @@
                     android:layout_width="50dp"
                     android:layout_height="wrap_content"
                     android:backgroundTint="#B0B0B0"
-                    android:inputType="numberDecimal" />
+                    android:hint="min"
+                    android:inputType="number" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
@@ -243,7 +332,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:backgroundTint="#B0B0B0"
-                    android:hint="Enter source"
+                    android:hint="Enter source (optional)"
                     android:inputType="text"
                     android:textSize="14sp" />
             </LinearLayout>
@@ -271,11 +360,11 @@
                 android:padding="12dp"
                 android:scrollbars="vertical" />
 
-
             <TextView
                 android:id="@+id/textViewInstructions"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
                 android:layout_marginBottom="8dp"
                 android:text="Instructions"
                 android:textSize="20sp"
@@ -285,6 +374,7 @@
                 android:id="@+id/editTextInstructionsInput"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
                 android:hint="Add each instruction on a new line"
                 android:inputType="textMultiLine"
                 android:lines="6"
@@ -297,6 +387,7 @@
                 android:id="@+id/textViewNotes"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
                 android:layout_marginBottom="8dp"
                 android:text="Notes"
                 android:textSize="20sp"
@@ -306,8 +397,9 @@
                 android:id="@+id/editTextNotesInput"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="32dp"
                 android:background="@drawable/edit_text_border"
-                android:hint="Add a note"
+                android:hint="Add a note (optional)"
                 android:inputType="text"
                 android:paddingHorizontal="12dp"
                 android:paddingVertical="8dp" />
